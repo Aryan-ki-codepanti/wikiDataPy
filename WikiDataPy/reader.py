@@ -46,10 +46,50 @@ class WikiReader:
 
         return ans
 
+    @staticmethod
+    def getEntities(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}):
+        '''
+            getEntities
+
+            default options\n
+                - languages : "en"
+                - languages : "descriptions"
+                - sites : "enwiki"
+
+
+        '''
+
+        id_ = "|".join(id_)
+        options["sitelinks"] = "|".join(options["sitelinks"])
+        options["languages"] = "|".join(options["languages"])
+        options["props"] = "|".join(options["props"])
+
+        options.update(
+            {"format": "json", "action": "wbgetentities", "ids": id_})
+
+        res = requests.get(WikiReader.API_ENDPOINT,
+                           params=options).json()
+
+        # error handling
+        if "error" in res:
+            print("Error")
+            return res['error']
+        if "entities" in res:
+            res = res["entities"]
+        print(options, len(res))
+
+        pprint.pprint(res)
+        return res
+
 
 if __name__ == "__main__":
     r = WikiReader()
     q = "pen"
 
-    ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
-    pprint.pprint(ans)
+    # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
+
+    options = {"languages": ["en", "fr"], "sitelinks": [
+        "enwiki", "frwiki"], "props": ["descriptions"]}
+
+    ids = ["Q42", "Q150", "Q123"]
+    WikiReader.getEntities(ids, options)
