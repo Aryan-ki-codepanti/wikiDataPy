@@ -47,7 +47,7 @@ class WikiReader:
         return ans
 
     @staticmethod
-    def getEntities(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}):
+    def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}):
         '''
             getEntities
 
@@ -64,6 +64,7 @@ class WikiReader:
         options["languages"] = "|".join(options["languages"])
         options["props"] = "|".join(options["props"])
 
+        # musrt have options
         options.update(
             {"format": "json", "action": "wbgetentities", "ids": id_})
 
@@ -72,13 +73,34 @@ class WikiReader:
 
         # error handling
         if "error" in res:
-            print("Error")
+            print("Error in getEntitiesByIDs")
             return res['error']
         if "entities" in res:
             res = res["entities"]
-        print(options, len(res))
 
-        pprint.pprint(res)
+        return res
+
+    @staticmethod
+    def getClaims(id_="Q42", options={"rank": "normal"}):
+        '''
+            get claims of entity with ID id_
+            options
+                - rank : normal default (One of the following values: deprecated, normal, preferred)
+        '''
+
+        options.update(
+            {"format": "json", "action": "wbgetclaims", "entity": id_})
+
+        res = requests.get(WikiReader.API_ENDPOINT,
+                           params=options).json()
+
+        if "error" in res:
+            print("Error in get claims")
+            return
+
+        if "claims" in res:
+            res = res["claims"]
+
         return res
 
 
@@ -92,4 +114,6 @@ if __name__ == "__main__":
         "enwiki", "frwiki"], "props": ["descriptions"]}
 
     ids = ["Q42", "Q150", "Q123"]
-    WikiReader.getEntities(ids, options)
+    id_ = "Q150"
+    # WikiReader.getEntitiesByIds(ids, options)
+    WikiReader.getClaims(id_)
