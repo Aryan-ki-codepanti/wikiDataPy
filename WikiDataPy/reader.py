@@ -1,10 +1,10 @@
+
 import requests
 import pprint
+from BASE import WikiBase
 
 
-class WikiReader:
-
-    API_ENDPOINT = "https://www.wikidata.org/w/api.php"
+class WikiReader(WikiBase):
 
     @staticmethod
     def searchEntities(query, fields=["description"], n=None, lang="en"):
@@ -111,9 +111,13 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     options = {"languages": ["en", "fr"], "sitelinks": [
-        "enwiki", "frwiki"], "props": ["descriptions"]}
+        "enwiki", "frwiki"], "props": ["descriptions", "labels"]}
 
     ids = ["Q42", "Q150", "Q123"]
     id_ = "Q150"
-    # WikiReader.getEntitiesByIds(ids, options)
-    WikiReader.getClaims(id_)
+    jackson = "Q2381"
+    # res = WikiReader.getEntitiesByIds([jackson], options)
+    # res = WikiReader.getClaims(jackson)
+    # WikiReader.dumpResult(res)
+    # pprint.pprint(WikiReader.searchEntities(
+    #     "IIT", fields=["description", "id"]))
