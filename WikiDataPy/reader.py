@@ -116,7 +116,8 @@ if __name__ == "__main__":
     ids = ["Q42", "Q150", "Q123"]
     id_ = "Q150"
     jackson = "Q2381"
-    # res = WikiReader.getEntitiesByIds([jackson], options)
+    res = WikiReader.getEntitiesByIds([jackson], options)
+    WikiReader.dumpResult(res)
     # res = WikiReader.getClaims(jackson)
     # WikiReader.dumpResult(res)
     # pprint.pprint(WikiReader.searchEntities(
