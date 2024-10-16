@@ -8,9 +8,10 @@ class WikiBase:
 
     # tesing purpose
     @staticmethod
-    def dumpResult(data):
+    def dumpResult(data, fname=None):
         try:
-            with open(WikiBase.TEST, "w") as f:
+            fname = fname if fname else WikiBase.TEST
+            with open(fname, "w") as f:
                 json.dump(data, f)
 
         except Exception as e:

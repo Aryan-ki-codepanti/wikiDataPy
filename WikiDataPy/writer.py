@@ -59,7 +59,7 @@ class WikiWriter(WikiBase):
 
     def logout(self):
         """
-            To logout from current session
+                To logout from current session
         """
         params = {
             "action": "logout",
@@ -74,28 +74,63 @@ class WikiWriter(WikiBase):
 
     # functionalities
 
-    def addClaim():
-        pass
+    def addClaim(self, entity_id, property_id, value_id):
+        """
+        Create a new claim on a Wikidata entity.
+
+        :param entity_id: str, the ID of the entity (e.g., "Q42")
+        :param property_id: str, the property ID (e.g., "P31")
+        :param value_id: str, the ID of the value (e.g., "Q5")
+        """
+
+        if not self.csrf_token:
+            print("You have no CSRF token, kindly login and then call getCSRFToken()")
+            return
+
+        params = {
+            "action": "wbcreateclaim",
+            "format": "json",
+            "entity": entity_id,
+            "snaktype": "value",
+            "property": property_id,
+            "value": json.dumps({
+                "entity-type": "item",
+                "numeric-id": int(value_id[1:])
+            }),
+            "token": self.csrf_token
+        }
+
+        # Send POST request to create the claim
+        response = self.session.post(
+            WikiWriter.API_ENDPOINT, data=params).json()
+
+        # Handle errors
+        if "error" in response:
+            print("Error in creating claim:", response["error"])
+            return response["error"]
+
+        print("Claim created successfully:", response)
+        return response
 
     def createOrEditEntity(self, labels, descriptions, entity_id=None):
         '''
-            options
-            - labels
-            - descriptions
+                options
+                - labels
+                - descriptions
 
-            sample
-            labels = {
-                    "en": "New Sample Entity",
-                    "fr": "Nouvelle Entité Exemple"
-                }
-            descriptions = {
-                    "en": "This is a newly created sample entity.",
-                    "fr": "Ceci est une nouvelle entité exemple."
-                }
+                sample
+                labels = {
+                                "en": "New Sample Entity",
+                                "fr": "Nouvelle Entité Exemple"
+                        }
+                descriptions = {
+                                "en": "This is a newly created sample entity.",
+                                "fr": "Ceci est une nouvelle entité exemple."
+                        }
 
-            - clear : erase then write labels , descriptions
+                - clear : erase then write labels , descriptions
 
-            - provide id if you want to edit say Q150
+                - provide id if you want to edit say Q150
 
         '''
         if not self.csrf_token:
@@ -150,13 +185,9 @@ Performing write/update  operations that require authentication , make sure to f
 '''
 
 
-if __name__ == "__main__":
-    w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
+def write_test(w):
+    # create / edit entity
 
-    w.login()
-    w.getCSRFTtoken()
-
-    # write test
     labels = {
         "en": "New Sample Entity by Aryan",
         "fr": "Nouvel exemple d'entité par Aryan"
@@ -166,6 +197,28 @@ if __name__ == "__main__":
         "fr": "Il s'agit d'un exemple d'entité nouvellement créé par Aryan"
     }
     res = w.createOrEditEntity(labels=labels, descriptions=descriptions)
-    WikiWriter.dumpResult(res)
+    WikiWriter.dumpResult(res, "test_createEntity.json")
+
+
+def claim_test(w: WikiWriter):
+    # create / edit claim
+    e = "Q130532046"
+    p = "P31"  # instance of
+    v = "Q5"  # human
+    res = w.addClaim(e, p, v)
+    WikiWriter.dumpResult(res, "test_addClaim.json")
+
+
+if __name__ == "__main__":
+    w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
+
+    w.login()
+    w.getCSRFTtoken()
+
+    # write test
+    # write_test(w)
+
+    # add claim test
+    claim_test(w)
 
     w.logout()
