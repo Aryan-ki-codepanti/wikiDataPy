@@ -296,6 +296,52 @@ class WikiWriter(WikiBase):
         print("Aliases added successfully")
         return resp
 
+    def addRemoveAliases(self, entity_id, add="", remove="", language_code="en"):
+        """
+        Sets  aliase(s) of entity (entity_id) having language_code
+
+        :param entity_id: str, the ID of the entity (e.g., "Q42")
+        :param add: str or list[str], the alias of list of aliases of the entity to be added (e.g., "MyEntity" or ["E1","E2"])
+        :param remove: str or list[str], the alias of list of aliases of the entity to be removed (e.g., "MyEntity" or ["E1","E2"])
+        :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english) default english
+
+        example:
+            ent = "Q130532046"
+            lang = "en"  # hindi
+            add = ["E2","E1"]
+            remove = ["MyEntity_1"]
+
+            data = w.addRemoveAliases(ent, val,lang)
+
+        """
+        if not self.csrf_token:
+            print("You have no csrf token, kindly login and then call getCSRFToken()")
+            return
+
+        add = add if type(add) == str else "|".join(add)
+        remove = remove if type(remove) == str else "|".join(remove)
+
+        params = {
+            "action": "wbsetaliases",
+            "token": self.csrf_token,
+            "format": "json",
+            "id": entity_id,
+            "language": language_code
+        }
+        if add:
+            params["add"] = add
+        if remove:
+            params["remove"] = remove
+
+        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+
+        if "error" in resp:
+            print("Error while changing Aliases")
+            print(resp["error"])
+            return resp["error"]
+        print("Aliases changed successfully")
+        return resp
+
 
 '''
 
@@ -358,6 +404,17 @@ def set_alias_test(w: WikiWriter, f):
     WikiWriter.dumpResult(data, f)
 
 
+def addRem_alias_test(w: WikiWriter, f):
+
+    ent = "Q130532046"
+    lang = "en"
+    add = ["E2", "E1"]
+    remove = ["MyEntity_1"]
+
+    data = w.addRemoveAliases(ent, add, remove, lang)
+    WikiWriter.dumpResult(data, f)
+
+
 if __name__ == "__main__":
     w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
 
@@ -378,5 +435,8 @@ if __name__ == "__main__":
 
     #  set alias test
     # set_alias_test(w, "test_setAlias_1.json")
+
+    #  add remove alias test
+    addRem_alias_test(w, "test_AddRemAlias_1.json")
 
     w.logout()
