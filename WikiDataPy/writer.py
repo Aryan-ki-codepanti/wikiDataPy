@@ -178,6 +178,47 @@ class WikiWriter(WikiBase):
 
         return response
 
+    def setLabel(self, entity_id, language_code, label):
+        """
+        Create a new label or update existing label of entity (entity_id) having language_code
+        with value label
+
+        :param entity_id: str, the ID of the entity (e.g., "Q42")
+        :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english)
+        :param label: str, the value of the label (e.g., "This is  a label")
+
+        example:
+            ent = "Q130532046"
+            lang = "anp"  # hindi
+            val = "मैं आर्यन हूं ha"
+
+            data = w.setLabel(ent, lang, val)
+
+        """
+        if not self.csrf_token:
+            print("You have no csrf token, kindly login and then call getCSRFToken()")
+            return
+
+        # create new
+        params = {
+
+            "action": "wbsetlabel",
+            "token": self.csrf_token,
+            "format": "json",
+            "id": entity_id,
+            "language": language_code,
+            "value": label
+        }
+
+        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+
+        if "error" in resp:
+            print("Error while setting label")
+            print(resp["error"])
+            return resp["error"]
+        print("Label added successfully")
+        return resp
+
 
 '''
 
@@ -209,6 +250,16 @@ def claim_test(w: WikiWriter):
     WikiWriter.dumpResult(res, "test_addClaim.json")
 
 
+def label_test(w: WikiWriter, f):
+
+    ent = "Q130532046"
+    lang = "hi"  # hindi
+    val = "मैं आर्यन हूं ha"
+
+    data = w.setLabel(ent, lang, val)
+    WikiWriter.dumpResult(data, f)
+
+
 if __name__ == "__main__":
     w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
 
@@ -219,6 +270,9 @@ if __name__ == "__main__":
     # write_test(w)
 
     # add claim test
-    claim_test(w)
+    # claim_test(w)
+
+    # Label set test
+    label_test(w, "test_setLabel_2.json")
 
     w.logout()
