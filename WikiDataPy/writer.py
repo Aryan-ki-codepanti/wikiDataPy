@@ -256,6 +256,46 @@ class WikiWriter(WikiBase):
         print("Description added successfully")
         return resp
 
+    def setAliases(self, entity_id, aliases, language_code="en"):
+        """
+        Sets  aliase(s) of entity (entity_id) having language_code
+
+        :param entity_id: str, the ID of the entity (e.g., "Q42")
+        :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english) default english
+        :param aliases: str or list[str], the alias of list of aliases of the entity (e.g., "MyEntity" or ["E1","E2"])
+
+        example:
+            ent = "Q130532046"
+            lang = "en"  # hindi
+            val = "MyEntity_1"
+
+            data = w.setAliases(ent, val,lang)
+
+        """
+        if not self.csrf_token:
+            print("You have no csrf token, kindly login and then call getCSRFToken()")
+            return
+
+        aliases = aliases if type(aliases) == str else "|".join(aliases)
+
+        params = {
+            "action": "wbsetaliases",
+            "token": self.csrf_token,
+            "format": "json",
+            "id": entity_id,
+            "language": language_code,
+            "set": aliases
+        }
+
+        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+
+        if "error" in resp:
+            print("Error while setting Aliases")
+            print(resp["error"])
+            return resp["error"]
+        print("Aliases added successfully")
+        return resp
+
 
 '''
 
@@ -307,6 +347,17 @@ def desc_test(w: WikiWriter, f):
     WikiWriter.dumpResult(data, f)
 
 
+def set_alias_test(w: WikiWriter, f):
+
+    ent = "Q130532046"
+    lang = "en"  # hindi
+    # val = "MyEntity_1"
+    val = ["MyEntity_1", "MyEntity_2"]
+
+    data = w.setAliases(ent, val, lang)
+    WikiWriter.dumpResult(data, f)
+
+
 if __name__ == "__main__":
     w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
 
@@ -323,6 +374,9 @@ if __name__ == "__main__":
     # label_test(w, "test_setLabel_2.json")
 
     # description set test
-    desc_test(w, "test_setDescription_1.json")
+    # desc_test(w, "test_setDescription_1.json")
+
+    #  set alias test
+    # set_alias_test(w, "test_setAlias_1.json")
 
     w.logout()
