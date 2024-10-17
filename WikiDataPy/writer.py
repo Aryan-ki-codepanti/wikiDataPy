@@ -199,9 +199,7 @@ class WikiWriter(WikiBase):
             print("You have no csrf token, kindly login and then call getCSRFToken()")
             return
 
-        # create new
         params = {
-
             "action": "wbsetlabel",
             "token": self.csrf_token,
             "format": "json",
@@ -217,6 +215,45 @@ class WikiWriter(WikiBase):
             print(resp["error"])
             return resp["error"]
         print("Label added successfully")
+        return resp
+
+    def setDescription(self, entity_id, language_code, description):
+        """
+        Create a new description or update existing description of entity (entity_id) having language_code
+        with value description
+
+        :param entity_id: str, the ID of the entity (e.g., "Q42")
+        :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english)
+        :param description: str, the value of the description (e.g., "This is  a description")
+
+        example:
+            ent = "Q130532046"
+            lang = "anp"  # hindi
+            val = "मैं आर्यन हूं ha"
+
+            data = w.setdescription(ent, lang, val)
+
+        """
+        if not self.csrf_token:
+            print("You have no csrf token, kindly login and then call getCSRFToken()")
+            return
+
+        params = {
+            "action": "wbsetdescription",
+            "token": self.csrf_token,
+            "format": "json",
+            "id": entity_id,
+            "language": language_code,
+            "value": description
+        }
+
+        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+
+        if "error" in resp:
+            print("Error while setting Description")
+            print(resp["error"])
+            return resp["error"]
+        print("Description added successfully")
         return resp
 
 
@@ -260,6 +297,16 @@ def label_test(w: WikiWriter, f):
     WikiWriter.dumpResult(data, f)
 
 
+def desc_test(w: WikiWriter, f):
+
+    ent = "Q130532046"
+    lang = "hi"  # hindi
+    val = "यह एक विवरण है"
+
+    data = w.setDescription(ent, lang, val)
+    WikiWriter.dumpResult(data, f)
+
+
 if __name__ == "__main__":
     w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
 
@@ -273,6 +320,9 @@ if __name__ == "__main__":
     # claim_test(w)
 
     # Label set test
-    label_test(w, "test_setLabel_2.json")
+    # label_test(w, "test_setLabel_2.json")
+
+    # description set test
+    desc_test(w, "test_setDescription_1.json")
 
     w.logout()
