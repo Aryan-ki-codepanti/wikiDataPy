@@ -349,7 +349,7 @@ Performing write/update  operations that require authentication , make sure to f
 '''
 
 
-def write_test(w):
+def write_test(w: WikiWriter, fname):
     # create / edit entity
 
     labels = {
@@ -361,16 +361,16 @@ def write_test(w):
         "fr": "Il s'agit d'un exemple d'entité nouvellement créé par Aryan"
     }
     res = w.createOrEditEntity(labels=labels, descriptions=descriptions)
-    WikiWriter.dumpResult(res, "test_createEntity.json")
+    WikiWriter.dumpResult(res, fname)
 
 
-def claim_test(w: WikiWriter):
+def claim_test(w: WikiWriter, fname):
     # create / edit claim
     e = "Q130532046"
     p = "P31"  # instance of
     v = "Q5"  # human
     res = w.addClaim(e, p, v)
-    WikiWriter.dumpResult(res, "test_addClaim.json")
+    WikiWriter.dumpResult(res, fname)
 
 
 def label_test(w: WikiWriter, f):
@@ -422,10 +422,10 @@ if __name__ == "__main__":
     w.getCSRFTtoken()
 
     # write test
-    # write_test(w)
+    # write_test(w, "test_create2.json")
 
     # add claim test
-    # claim_test(w)
+    # claim_test(w, "test_AddClaim2.json")
 
     # Label set test
     # label_test(w, "test_setLabel_2.json")
