@@ -104,11 +104,15 @@ class WikiReader(WikiBase):
         return res
 
 
-if __name__ == "__main__":
-    r = WikiReader()
-    q = "pen"
+def searchEntityTest(fname):
+    q = "modi"
+    ans = WikiReader.searchEntities(
+        q, ["description", "url"],  lang="en", n=10)
+    print("DONE search Entities")
+    WikiReader.dumpResult(ans, fname)
 
-    # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
+
+def getEntitiesTest(fname):
 
     options = {"languages": ["en", "fr"], "sitelinks": [
         "enwiki", "frwiki"], "props": ["descriptions", "labels"]}
@@ -116,9 +120,29 @@ if __name__ == "__main__":
     ids = ["Q42", "Q150", "Q123"]
     id_ = "Q150"
     jackson = "Q2381"
-    res = WikiReader.getEntitiesByIds([jackson], options)
-    WikiReader.dumpResult(res)
-    # res = WikiReader.getClaims(jackson)
-    # WikiReader.dumpResult(res)
-    # pprint.pprint(WikiReader.searchEntities(
-    #     "IIT", fields=["description", "id"]))
+    res = WikiReader.getEntitiesByIds(ids, options)
+    print("Done get entities")
+    WikiReader.dumpResult(res, fname)
+
+
+def getClaimTest(fname):
+    id_ = "Q5"
+    res = WikiReader.getClaims(id_)
+    print("Done claim test")
+    WikiReader.dumpResult(res, fname)
+
+
+if __name__ == "__main__":
+    r = WikiReader()
+    q = "pen"
+
+    # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
+
+    # search query test
+    # searchEntityTest("test_SearchEntity3.json")
+
+    # get entities test
+    # getEntitiesTest("test_GetEntities1.json")
+
+    # get claims test
+    getClaimTest("test_GetClaimTest1.json")
