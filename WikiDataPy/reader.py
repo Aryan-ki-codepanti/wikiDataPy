@@ -8,14 +8,16 @@ class WikiReader(WikiBase):
 
     @staticmethod
     def searchEntities(query, fields=["description"], n=None, lang="en"):
-        '''
-            given a query searches knowledgebase for the items related to it
-            return description as 1st fielf along with other fields specified by fields argument
+        """
+        given a query searches knowledgebase for the items related to it
 
-            lang can be provided but if results are empty English (en) is used as fallback
+        return description as 1st field along with other fields specified by fields argument
 
-            n specifies number of descriptors to be returned, by default all will be returned
-        '''
+        :param fields: list of fields fields to return (id,title,url, label,description) (default description)
+        :param lang: can be provided but if results are empty English (en) is used as fallback
+        :param n: specifies number of descriptors to be returned, by default all will be returned
+
+        """
 
         params = {
             "action": "wbsearchentities",
@@ -49,12 +51,15 @@ class WikiReader(WikiBase):
     @staticmethod
     def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}):
         '''
-            getEntities
+        getEntities
 
-            default options\n
-                - languages : "en"
-                - languages : "descriptions"
-                - sites : "enwiki"
+        :param id_: list of ids of entities to fetch
+        :param options: set options like languages sitelinks and properties to fetch
+
+        default options\n
+            - languages : "en"
+            - languages : "descriptions"
+            - sites : "enwiki"
 
 
         '''
@@ -82,11 +87,14 @@ class WikiReader(WikiBase):
 
     @staticmethod
     def getClaims(id_="Q42", options={"rank": "normal"}):
-        '''
-            get claims of entity with ID id_
-            options
-                - rank : normal default (One of the following values: deprecated, normal, preferred)
-        '''
+        """
+        get claims of entity with ID id_
+
+        :param id_: id of item whose claims need to be fetched
+
+        options
+            - rank: normal default (One of the following values: deprecated, normal, preferred)
+        """
 
         options.update(
             {"format": "json", "action": "wbgetclaims", "entity": id_})
