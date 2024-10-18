@@ -32,10 +32,10 @@ class WikiReader(WikiBase):
 
         ans = []
         for i in res:
-            l = []
+            l = {}
             for k in fields:
                 if k in i:
-                    l.append(i[k])
+                    l[k] = i[k]
             ans.append(l)
 
         # unlist if only 1 field
@@ -115,7 +115,7 @@ class WikiReader(WikiBase):
 def searchEntityTest(fname):
     q = "modi"
     ans = WikiReader.searchEntities(
-        q, ["description", "url"],  lang="en", n=10)
+        q, ["description", "url", "id"],  lang="en", n=10)
     print("DONE search Entities")
     WikiReader.dumpResult(ans, fname)
 
@@ -147,10 +147,10 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     # search query test
-    # searchEntityTest("test_SearchEntity3.json")
+    searchEntityTest("test_SearchEntity3.json")
 
     # get entities test
     # getEntitiesTest("test_GetEntities1.json")
 
     # get claims test
-    getClaimTest("test_GetClaimTest1.json")
+    # getClaimTest("test_GetClaimTest1.json")
