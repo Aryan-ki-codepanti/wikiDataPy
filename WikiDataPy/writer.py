@@ -112,6 +112,40 @@ class WikiWriter(WikiBase):
         print("Claim created successfully:", response)
         return response
 
+    def removeClaims(self, claim_guids: list[str]):
+        """
+        Removes  claims by their guids.
+
+        :param claim_guids: list[str], the list  of the guids size not more than 50
+        """
+
+        if not self.csrf_token:
+            print("You have no CSRF token, kindly login and then call getCSRFToken()")
+            return []
+
+        if not type(claim_guids) != list[str] or len(claim_guids) > 50:
+            print("Invalid input expected list of strings (max size 50)")
+            return []
+
+        params = {
+            "action": "wbremoveclaims",
+            "format": "json",
+            "token": self.csrf_token,
+            "claim": "|".join(claim_guids)
+        }
+
+        # Send POST request to create the claim
+        response = self.session.post(
+            WikiWriter.API_ENDPOINT, data=params).json()
+
+        # Handle errors
+        if "error" in response:
+            print("Error in removing claims:", response["error"])
+            return response["error"]
+
+        print("Claims removed successfully:", response)
+        return response
+
     def createOrEditEntity(self, labels, descriptions, entity_id=None):
         '''
                 options
@@ -364,12 +398,21 @@ def write_test(w: WikiWriter, fname):
     WikiWriter.dumpResult(res, fname)
 
 
-def claim_test(w: WikiWriter, fname):
+def add_claim_test(w: WikiWriter, fname):
     # create / edit claim
     e = "Q130532046"
     p = "P31"  # instance of
     v = "Q5"  # human
     res = w.addClaim(e, p, v)
+    WikiWriter.dumpResult(res, fname)
+
+
+def remove_claim_test(w: WikiWriter, fname):
+    # create / edit claim
+    guids = ["Q130532046$5E1439CD-D869-43FA-87C0-2025D98BF2E0",
+             "Q130532046$BC0D0706-F100-4351-B74D-4F96718E6D75"]
+    res = w.removeClaims(guids)
+
     WikiWriter.dumpResult(res, fname)
 
 
@@ -425,7 +468,10 @@ if __name__ == "__main__":
     # write_test(w, "test_create2.json")
 
     # add claim test
-    # claim_test(w, "test_AddClaim2.json")
+    # add_claim_test(w, "test_AddClaim2.json")
+
+    # remove claims test
+    remove_claim_test(w, "test_RemoveClaim1.json")
 
     # Label set test
     # label_test(w, "test_setLabel_2.json")
