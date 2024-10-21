@@ -9,7 +9,7 @@ class WikiReader(WikiBase):
     @staticmethod
     def searchEntities(query, fields=["description"], n=None, lang="en"):
         """
-        given a query searches knowledgebase for the items related to it
+        given a query searches knowledgebase for the items (from labels and aliases)
 
         return description as 1st field along with other fields specified by fields argument
 
@@ -26,6 +26,8 @@ class WikiReader(WikiBase):
             "search": query
         }
 
+        if n:
+            params["limit"] = n
         res = requests.get(WikiReader.API_ENDPOINT, params=params).json()
         res = [] if "search" not in res else res["search"]
         # pprint.pprint(res)
@@ -58,7 +60,7 @@ class WikiReader(WikiBase):
 
         default options\n
             - languages : "en"
-            - languages : "descriptions"
+            - props : "descriptions"
             - sites : "enwiki"
 
 
@@ -113,9 +115,9 @@ class WikiReader(WikiBase):
 
 
 def searchEntityTest(fname):
-    q = "modi"
+    q = "is a newly created"
     ans = WikiReader.searchEntities(
-        q, ["description", "url", "id"],  lang="en", n=10)
+        q, ["description", "url", "id"],  lang="en", n=20)
     print("DONE search Entities")
     WikiReader.dumpResult(ans, fname)
 
@@ -147,7 +149,7 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     # search query test
-    searchEntityTest("test_SearchEntity3.json")
+    searchEntityTest("test_SearchEntity4.json")
 
     # get entities test
     # getEntitiesTest("test_GetEntities1.json")

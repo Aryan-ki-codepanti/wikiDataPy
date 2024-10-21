@@ -421,7 +421,7 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    # write test
+    # create entity test
     # write_test(w, "test_create2.json")
 
     # add claim test
@@ -437,6 +437,6 @@ if __name__ == "__main__":
     # set_alias_test(w, "test_setAlias_1.json")
 
     #  add remove alias test
-    addRem_alias_test(w, "test_AddRemAlias_1.json")
+    # addRem_alias_test(w, "test_AddRemAlias_1.json")
 
     w.logout()
