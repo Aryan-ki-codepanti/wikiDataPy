@@ -9,7 +9,7 @@ class WikiReader(WikiBase):
     @staticmethod
     def searchEntities(query, fields=["description"], n=None, lang="en"):
         """
-        given a query searches knowledgebase for the items (from labels and aliases)
+        given a query searches knowledgebase for the relevant items
 
         return description as 1st field along with other fields specified by fields argument
 

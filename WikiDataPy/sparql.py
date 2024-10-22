@@ -2,7 +2,6 @@ import requests
 from BASE import WikiBase
 from datetime import datetime
 import os
-import pprint
 import sys
 
 
@@ -11,9 +10,13 @@ class WikiSparql(WikiBase):
     API_ENDPOINT = "https://query.wikidata.org/sparql"
 
     @staticmethod
-    def execute(query):
+    def execute(query: str):
+        """
+        Executes and return response of SPARQL query
 
-        # Define the query headers
+        :param query: str, SPARQL Query to be executed
+        """
+
         headers = {
             'User-Agent': 'Python/SPARQL',
             'Accept': 'application/sparql-results+json'
@@ -30,6 +33,16 @@ class WikiSparql(WikiBase):
 
     @staticmethod
     def execute_many(fileSource: str, delimiter="---", output="single", output_dir="sparql_test"):
+        """
+        Executes and return responses of SPARQL queries and saves them to file(s) 
+
+        response files will have format 'SparQL_Result_<time_stamp>.json'
+
+        :param fileSource: str, Path to txt file containing sparql queries to be executed
+        :param delimiter: str, delimiter used to separate queries in text file by default its '---'
+        :param output: str, either 'single' or 'many' denoting output of queries should be in single file or multiple files \ndefault its single
+        :param output_dir: str,  directory name to save response files to
+        """
 
         try:
 
