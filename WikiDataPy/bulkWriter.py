@@ -52,7 +52,10 @@ class BulkWriter(WikiWriter):
 
 
         CSV file format of rows (with optional header but specify if header present)
-        language_code_1,label_1,description_1,language_code2,label_2,description2_,... so on for desired languages
+        language_code_1,label_1,description_1,alias1,language_code2,label_2,description2,alias2,... so on for desired languages
+
+
+        where alias1 is pipe joined aliases
 
         this creates one entity per row with a  labels descriptions specified
         for multiple labels/descriptions in more than one language , create 1 entity then use 'editEntitiesFromCSV' 
@@ -76,11 +79,16 @@ class BulkWriter(WikiWriter):
                     # create labels descriptions using triplets
                     lbl = {}
                     desc = {}
-                    for j in range(2, len(i), 3):
-                        lbl[i[j-2]] = i[j-1]
-                        desc[i[j-2]] = i[j]
+                    aliases = {}
+                    for j in range(3, len(i), 4):
+                        lbl[i[j-3]] = i[j-2]
+                        desc[i[j-3]] = i[j-1]
+                        if i[j]:
+                            aliases[i[j-3]] = i[j].split('|')
 
-                    resp.append(self.createOrEditEntity(lbl, desc))
+                    if not aliases:
+                        aliases = None
+                    resp.append(self.createOrEditEntity(lbl, desc, aliases))
 
                     sleep(BulkWriter.DELTA)
                 return resp
@@ -149,7 +157,7 @@ def bulk_create_entities(w: BulkWriter):
     # f1 = "bulk/test_create.csv"
     # f2 = "bulk/test_create_3.json"  # lot of creations
     f1 = "bulk/testMul_create.csv"
-    f2 = "bulk/test_create_4Mul.json"  # lot of creations
+    f2 = "bulk/test_create_5Mul.json"  # lot of creations
 
     res = w.createEntitiesFromCSV(f1)
     print("Bulk Create done")

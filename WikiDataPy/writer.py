@@ -146,11 +146,12 @@ class WikiWriter(WikiBase):
         print("Claims removed successfully:", response)
         return response
 
-    def createOrEditEntity(self, labels, descriptions, entity_id=None):
+    def createOrEditEntity(self, labels, descriptions, aliases=None, entity_id=None):
         '''
                 options
                 - labels
                 - descriptions
+                - aliases
 
                 sample
                 labels = {
@@ -161,6 +162,10 @@ class WikiWriter(WikiBase):
                                 "en": "This is a newly created sample entity.",
                                 "fr": "Ceci est une nouvelle entité exemple."
                         }
+
+                aliases = {
+                    "en": ["alias1","alias2"]
+                }
 
                 - clear : erase then write labels , descriptions
 
@@ -199,6 +204,10 @@ class WikiWriter(WikiBase):
         if descriptions:
             data["descriptions"] = {
                 lang: {"language": lang, "value": desc} for lang, desc in descriptions.items()}
+
+        if aliases:
+            data["aliases"] = {x: [{"language": x, "value": i}
+                                   for i in aliases[x]] for x in aliases}
 
         params["data"] = json.dumps(data)
         # sending post the request
@@ -405,19 +414,27 @@ class WikiWriter(WikiBase):
 Performing write/update  operations that require authentication , make sure to first login
 '''
 
+# create / edit entity
+
 
 def write_test(w: WikiWriter, fname):
-    # create / edit entity
 
     labels = {
-        "en": "New Sample Entity by Aryan",
-        "fr": "Nouvel exemple d'entité par Aryan"
+        "en": "Sample 2 ",
+        "fr": "Nouvel exemple d'entité par"
     }
     descriptions = {
-        "en": "This is a newly created sample entity by Aryan",
-        "fr": "Il s'agit d'un exemple d'entité nouvellement créé par Aryan"
+        "en": "Sample tested desc 2",
+        "fr": "Il s'agit d'un exemple d'entité nouvellement créé par "
     }
-    res = w.createOrEditEntity(labels=labels, descriptions=descriptions)
+
+    aliases = {
+        "en": ["alias1", "alias2"],
+        "fr": ["aliase1", "aliase2"]
+    }
+
+    res = w.createOrEditEntity(
+        labels=labels, descriptions=descriptions, aliases=aliases, entity_id="Q130717335")
     WikiWriter.dumpResult(res, fname)
 
 
@@ -493,8 +510,8 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    # create entity test
-    # write_test(w, "writer_result/test_create2.json")
+    # create / edit entity test
+    # write_test(w, "writer_result/test_create3.json")
 
     # add claim test
     # add_claim_test(w, "writer_result/test_AddClaim_3new.json")
