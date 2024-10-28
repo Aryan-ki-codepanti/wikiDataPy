@@ -212,6 +212,29 @@ class WikiWriter(WikiBase):
 
         return response
 
+    def delete_entity(self, entity_id):
+        """
+            Delete an entity on Wikidata by its ID.
+
+            :param entity_id: str, the ID of the entity (e.g., "Q42")
+            :return:  Response from the API, or error message if deletion fails.
+        """
+        params = {
+            "action": "delete",
+            "format": "json",
+            "title": entity_id,
+            "token": self.csrf_token
+        }
+
+        response = self.session.post(self.API_ENDPOINT, data=params).json()
+
+        if "error" in response:
+            print("Error in deleting entity:", response["error"])
+            return response["error"]
+
+        print("Entity deleted successfully:", entity_id)
+        return response
+
     def setLabel(self, entity_id, language_code, label):
         """
         Create a new label or update existing label of entity (entity_id) having language_code
@@ -455,6 +478,12 @@ def addRem_alias_test(w: WikiWriter, f):
     remove = ["MyEntity_1"]
 
     data = w.addRemoveAliases(ent, add, remove, lang)
+    WikiWriter.dumpResult(data, f)
+
+
+def delete_test(w: WikiWriter, f):
+    e = "Q130712506"
+    data = w.delete_entity(e)
     WikiWriter.dumpResult(data, f)
 
 

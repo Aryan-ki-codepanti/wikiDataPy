@@ -43,7 +43,7 @@ class BulkWriter(WikiWriter):
             print("Error", e)
             return e
 
-    def createEntitiesFromCSV(self, fileSource: str, header=True):
+    def createEntitiesFromCSV(self, fileSource: str, header=True, delimiter=","):
         """
         Create a new  Wikidata entity per row in CSV file
 
@@ -52,9 +52,9 @@ class BulkWriter(WikiWriter):
 
 
         CSV file format of rows (with optional header but specify if header present)
-        language_code,label,description
+        language_code_1,label_1,description_1,language_code2,label_2,description2_,... so on for desired languages
 
-        this creates one entity per row with a single label description at time
+        this creates one entity per row with a  labels descriptions specified
         for multiple labels/descriptions in more than one language , create 1 entity then use 'editEntitiesFromCSV' 
         from entities' ids
         """
@@ -65,15 +65,22 @@ class BulkWriter(WikiWriter):
 
         try:
             with open(fileSource, "r") as f:
-                reader = csv.reader(f)
+                reader = csv.reader(f, delimiter=delimiter)
 
                 if header:  # header set
                     next(reader)
 
                 resp = []
                 for i in reader:
-                    resp.append(self.createOrEditEntity(
-                        {i[0]: i[1]}, {i[0]: i[2]}))
+
+                    # create labels descriptions using triplets
+                    lbl = {}
+                    desc = {}
+                    for j in range(2, len(i), 3):
+                        lbl[i[j-2]] = i[j-1]
+                        desc[i[j-2]] = i[j]
+
+                    resp.append(self.createOrEditEntity(lbl, desc))
 
                     sleep(BulkWriter.DELTA)
                 return resp
@@ -139,8 +146,10 @@ def bulk_add_claim_test(w: BulkWriter):
 
 
 def bulk_create_entities(w: BulkWriter):
-    f1 = "bulk/test_create.csv"
-    f2 = "bulk/test_create_3.json"  # lot of creations
+    # f1 = "bulk/test_create.csv"
+    # f2 = "bulk/test_create_3.json"  # lot of creations
+    f1 = "bulk/testMul_create.csv"
+    f2 = "bulk/test_create_4Mul.json"  # lot of creations
 
     res = w.createEntitiesFromCSV(f1)
     print("Bulk Create done")
@@ -164,9 +173,9 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    bulk_add_claim_test(w)
+    # bulk_add_claim_test(w)
 
-    # bulk_create_entities(w)
+    bulk_create_entities(w)
 
     # bulk_edit_entities(w)
 
