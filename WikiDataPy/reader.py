@@ -45,9 +45,6 @@ class WikiReader(WikiBase):
         if not ans:
             return WikiReader.searchEntities(query, fields, n=n, lang="en")
 
-        if n is not None:
-            ans = ans[:min(n, len(ans))]
-
         return ans
 
     @staticmethod
@@ -115,20 +112,19 @@ class WikiReader(WikiBase):
 
 
 def searchEntityTest(fname):
-    q = "is a newly created"
+    q = "ambani"
     ans = WikiReader.searchEntities(
-        q, ["description", "url", "id"],  lang="en", n=20)
+        q, ["description", "url", "id"],  lang="hi", n=20)
     print("DONE search Entities")
     WikiReader.dumpResult(ans, fname)
 
 
 def getEntitiesTest(fname):
 
-    options = {"languages": ["en", "fr"], "sitelinks": [
-        "enwiki", "frwiki"], "props": ["descriptions", "labels"]}
+    options = {"languages": ["en", "fr", "hi"], "sitelinks": [
+        "enwiki"], "props": ["descriptions", "labels"]}
 
-    ids = ["Q42", "Q150", "Q123"]
-    id_ = "Q150"
+    ids = ["Q42", "Q298547", "Q130641020"]
     jackson = "Q2381"
     res = WikiReader.getEntitiesByIds(ids, options)
     print("Done get entities")
@@ -136,7 +132,7 @@ def getEntitiesTest(fname):
 
 
 def getClaimTest(fname):
-    id_ = "Q5"
+    id_ = "Q298547"
     res = WikiReader.getClaims(id_)
     print("Done claim test")
     WikiReader.dumpResult(res, fname)
@@ -149,10 +145,10 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     # search query test
-    searchEntityTest("test_SearchEntity4.json")
+    # searchEntityTest("reader_result/test_SearchEntity4.json")
 
     # get entities test
-    # getEntitiesTest("test_GetEntities1.json")
+    # getEntitiesTest("reader_result/test_GetEntities2.json")
 
     # get claims test
-    # getClaimTest("test_GetClaimTest1.json")
+    getClaimTest("reader_result/test_GetClaimTest3.json")

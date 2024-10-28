@@ -56,11 +56,13 @@ class WikiSparql(WikiBase):
                 content = f.read()
             queries = content.split(delimiter)
 
+            cnt = 1
             result = []
             for query in queries:
                 x = WikiSparql.execute(query)
                 result.append(x)
-                sys.stdout.flush()
+                print(f"Executed query {cnt}")
+                cnt += 1
 
             # create directory if not exist
             if not os.path.isdir(output_dir):

@@ -400,7 +400,7 @@ def write_test(w: WikiWriter, fname):
 
 def add_claim_test(w: WikiWriter, fname):
     # create / edit claim
-    e = "Q130532046"
+    e = "Q130641020"
     p = "P31"  # instance of
     v = "Q5"  # human
     res = w.addClaim(e, p, v)
@@ -418,7 +418,7 @@ def remove_claim_test(w: WikiWriter, fname):
 
 def label_test(w: WikiWriter, f):
 
-    ent = "Q130532046"
+    ent = "Q130641020"
     lang = "hi"  # hindi
     val = "मैं आर्यन हूं ha"
 
@@ -428,9 +428,9 @@ def label_test(w: WikiWriter, f):
 
 def desc_test(w: WikiWriter, f):
 
-    ent = "Q130532046"
+    ent = "Q130641020"
     lang = "hi"  # hindi
-    val = "यह एक विवरण है"
+    val = "यह एक विवरण है विवरण है विवरण है विवरण है"
 
     data = w.setDescription(ent, lang, val)
     WikiWriter.dumpResult(data, f)
@@ -438,7 +438,7 @@ def desc_test(w: WikiWriter, f):
 
 def set_alias_test(w: WikiWriter, f):
 
-    ent = "Q130532046"
+    ent = "Q130641020"
     lang = "en"  # hindi
     # val = "MyEntity_1"
     val = ["MyEntity_1", "MyEntity_2"]
@@ -449,7 +449,7 @@ def set_alias_test(w: WikiWriter, f):
 
 def addRem_alias_test(w: WikiWriter, f):
 
-    ent = "Q130532046"
+    ent = "Q130641020"
     lang = "en"
     add = ["E2", "E1"]
     remove = ["MyEntity_1"]
@@ -465,24 +465,24 @@ if __name__ == "__main__":
     w.getCSRFTtoken()
 
     # create entity test
-    # write_test(w, "test_create2.json")
+    # write_test(w, "writer_result/test_create2.json")
 
     # add claim test
-    # add_claim_test(w, "test_AddClaim2.json")
+    # add_claim_test(w, "writer_result/test_AddClaim_3new.json")
 
     # remove claims test
-    remove_claim_test(w, "test_RemoveClaim1.json")
+    # remove_claim_test(w, "writer_result/test_RemoveClaim1.json")
 
     # Label set test
-    # label_test(w, "test_setLabel_2.json")
+    # label_test(w, "writer_result/test_setLabel_3.json")
 
     # description set test
-    # desc_test(w, "test_setDescription_1.json")
+    # desc_test(w, "writer_result/test_setDescription_3.json")
 
     #  set alias test
-    # set_alias_test(w, "test_setAlias_1.json")
+    # set_alias_test(w, "writer_result/test_setAlias_3.json")
 
     #  add remove alias test
-    # addRem_alias_test(w, "test_AddRemAlias_1.json")
+    # addRem_alias_test(w, "writer_result/test_AddRemAlias_3.json")
 
     w.logout()

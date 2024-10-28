@@ -131,8 +131,8 @@ class BulkWriter(WikiWriter):
 
 
 def bulk_add_claim_test(w: BulkWriter):
-    f1 = "bulk/test1.csv"
-    f2 = "bulk/test_bulkAddClaim.json"
+    f1 = "bulk/test1_CLAIM.csv"
+    f2 = "bulk/test_bulkAddClaim2.json"
     res = w.addClaimsFromCSV(f1)
     print("Bulk done")
     w.dumpResult(res, f2)
@@ -164,10 +164,10 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    # bulk_add_claim_test(w)
+    bulk_add_claim_test(w)
 
     # bulk_create_entities(w)
 
-    bulk_edit_entities(w)
+    # bulk_edit_entities(w)
 
     w.logout()
