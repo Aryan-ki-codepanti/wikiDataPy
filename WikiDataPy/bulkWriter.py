@@ -43,7 +43,7 @@ class BulkWriter(WikiWriter):
             print("Error", e)
             return e
 
-    def createEntitiesFromCSV(self, fileSource: str, header=True, delimiter=","):
+    def createEntitiesFromCSV(self, fileSource: str, header=True, delimiter=",", outputFile="created.csv"):
         """
         Create a new  Wikidata entity per row in CSV file
 
@@ -67,11 +67,14 @@ class BulkWriter(WikiWriter):
             return
 
         try:
+            writeRes = []
             with open(fileSource, "r") as f:
                 reader = csv.reader(f, delimiter=delimiter)
 
                 if header:  # header set
-                    next(reader)
+                    hdr = list(next(reader))
+                    hdr.insert(0, "id")
+                    writeRes.append(hdr)
 
                 resp = []
                 for i in reader:
@@ -88,9 +91,27 @@ class BulkWriter(WikiWriter):
 
                     if not aliases:
                         aliases = None
-                    resp.append(self.createOrEditEntity(lbl, desc, aliases))
+                    x = self.createOrEditEntity(lbl, desc, aliases)
+                    curr = list(i)
+                    if not x or "error" in x:
+                        curr.insert(0, -1)
 
+                    elif "entity" in x and "id" in x["entity"]:
+                        curr.insert(0, x["entity"]["id"])
+
+                    else:
+                        curr.insert(0, -1)
+
+                    resp.append(x)
+                    writeRes.append(curr)
                     sleep(BulkWriter.DELTA)
+
+                print(writeRes)
+                # write results to other CSV
+
+                with open(outputFile, mode="w", newline="") as f2:
+                    writer = csv.writer(f2)
+                    writer.writerows(writeRes)
                 return resp
 
         except Exception as e:
@@ -156,12 +177,15 @@ def bulk_add_claim_test(w: BulkWriter):
 def bulk_create_entities(w: BulkWriter):
     # f1 = "bulk/test_create.csv"
     # f2 = "bulk/test_create_3.json"  # lot of creations
-    f1 = "bulk/testMul_create.csv"
-    f2 = "bulk/test_create_5Mul.json"  # lot of creations
+    # f1 = "bulk/testMul_create.csv"
+    # f2 = "bulk/test_create_5Mul.json"  # lot of creations
 
-    res = w.createEntitiesFromCSV(f1)
+    f1 = "bulk/testMul_Newcreate6.csv"
+    f2 = "bulk/test_create_New6Mul.csv"  # lot of creations
+
+    res = w.createEntitiesFromCSV(f1, outputFile=f2)
     print("Bulk Create done")
-    w.dumpResult(res, f2)
+    # w.dumpResult(res, f2)
 
 
 def bulk_edit_entities(w: BulkWriter):
