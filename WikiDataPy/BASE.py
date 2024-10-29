@@ -1,4 +1,5 @@
 import json
+import csv
 
 
 class WikiBase:
@@ -24,3 +25,20 @@ class WikiBase:
 
         except Exception as e:
             print("Error")
+
+    @staticmethod
+    def dumpCSV(fname, head, data):
+        """
+        Writes python object to CSV file
+
+        :param data: python object to be written 
+
+        """
+
+        try:
+            with open(fname, mode="w", newline="") as file:
+                writer = csv.DictWriter(file, fieldnames=head)
+                writer.writeheader()
+                writer.writerows(data)
+        except Exception as e:
+            print("Error while writing")

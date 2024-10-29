@@ -64,9 +64,12 @@ class WikiReader(WikiBase):
         '''
 
         id_ = "|".join(id_)
-        options["sitelinks"] = "|".join(options["sitelinks"])
-        options["languages"] = "|".join(options["languages"])
-        options["props"] = "|".join(options["props"])
+        if "sitelinks" in options:
+            options["sitelinks"] = "|".join(options["sitelinks"])
+        if "languages" in options:
+            options["languages"] = "|".join(options["languages"])
+        if "props" in options:
+            options["props"] = "|".join(options["props"])
 
         # musrt have options
         options.update(
@@ -121,10 +124,11 @@ def searchEntityTest(fname):
 
 def getEntitiesTest(fname):
 
-    options = {"languages": ["en", "fr", "hi"], "sitelinks": [
-        "enwiki"], "props": ["descriptions", "labels"]}
+    # options = {"languages": ["en", "fr", "hi"], "sitelinks": [
+    #     "enwiki"], "props": ["descriptions", "labels"]}
+    options = {"props": ["descriptions", "labels"]}
 
-    ids = ["Q42", "Q298547", "Q130641020"]
+    ids = ["Q42", "Q298547", "Q5"]
     jackson = "Q2381"
     res = WikiReader.getEntitiesByIds(ids, options)
     print("Done get entities")
@@ -148,7 +152,7 @@ if __name__ == "__main__":
     # searchEntityTest("reader_result/test_SearchEntity4.json")
 
     # get entities test
-    # getEntitiesTest("reader_result/test_GetEntities2.json")
+    getEntitiesTest("reader_result/test_GetEntities3.json")
 
     # get claims test
-    getClaimTest("reader_result/test_GetClaimTest3.json")
+    # getClaimTest("reader_result/test_GetClaimTest3.json")

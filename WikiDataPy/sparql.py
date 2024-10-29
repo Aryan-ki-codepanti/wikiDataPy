@@ -1,13 +1,76 @@
 import requests
 from BASE import WikiBase
+from reader import WikiReader
 from datetime import datetime
 import os
 import sys
+import time
+import re
 
 
 class WikiSparql(WikiBase):
 
     API_ENDPOINT = "https://query.wikidata.org/sparql"
+
+    @staticmethod
+    def convertToCSVForm(data, lang=["en"]):
+
+        try:
+            dt = []
+            hdr = ['id']  # then glosses label description in langs
+
+            for l in lang:
+                hdr.extend([f'label-{l}', f'description-{l}', f'gloss-{l}'])
+
+            for queryRes in data:
+                ent = data[queryRes]
+                rec = {}
+                rec['id'] = ent['id']
+                # for keys in ['labels','descriptions','glosses']
+                for l in lang:
+                    rec[f'label-{l}'] = rec[f'description-{l}'] = rec[f'gloss-{l}'] = ''
+
+                    if "labels" in ent and l in ent['labels']:
+                        rec[f'label-{l}'] = ent['labels'][l]['value']
+
+                    if "descriptions" in ent and l in ent['descriptions']:
+                        rec[f'description-{l}'] = ent['descriptions'][l]['value']
+
+                    if "glosses" in ent and l in ent['glosses']:
+                        rec[f'gloss-{l}'] = ent['glosses'][l]['value']
+
+                # x[queryRes].keys()
+                dt.append(rec)
+            return {"success": 1, "head": hdr, "data": dt}
+        except Exception as e:
+            return {"success": 0, "data": data}
+
+    @staticmethod
+    def parseResultToIds(res):
+        if "results" not in res:
+            return ""
+
+        if "bindings" not in res["results"]:
+            return ""
+        res = res["results"]["bindings"]
+
+        ids = []
+        for obj in res:
+            for k in obj:
+                if "value" not in obj[k]:
+                    continue
+                x = obj[k]["value"]
+                id_ = re.findall(r"(?<=/)[^/]+", x)
+                if id_:
+                    id_ = id_[-1]
+                    ids.append(id_)
+
+        batch = 30
+        if ids:
+            batched_result = [ids[i:i + batch]
+                              for i in range(0, len(ids), batch)]
+            return batched_result
+        return []
 
     @staticmethod
     def execute(query: str):
@@ -22,17 +85,34 @@ class WikiSparql(WikiBase):
             'Accept': 'application/sparql-results+json'
         }
 
+        sys.stdout.flush()
         response = requests.get(WikiSparql.API_ENDPOINT, headers=headers,
                                 params={'query': query})
+        sys.stdout.flush()
 
         if response.status_code == 200:
-            return response.json()
+            res = response.json()
+            batch_IDS = WikiSparql.parseResultToIds(res)
+
+            if not batch_IDS:
+                return res
+
+            complete_data = {}
+            for batch in batch_IDS:
+                sys.stdout.flush()
+                x = WikiReader.getEntitiesByIds(
+                    batch, options={"props": ["descriptions", "labels"]})
+                complete_data.update(x)
+                sys.stdout.flush()
+
+            return complete_data
+
         else:
             print(f"Failed to retrieve data: {response.status_code}")
             return None
 
     @staticmethod
-    def execute_many(fileSource: str, delimiter="---", output="single", output_dir="sparql_test"):
+    def execute_many(fileSource: str, delimiter="---", output_format="json", output="single", output_dir="sparql_test", lang=["en"]):
         """
         Executes and return responses of SPARQL queries and saves them to file(s) 
 
@@ -40,16 +120,24 @@ class WikiSparql(WikiBase):
 
         :param fileSource: str, Path to txt file containing sparql queries to be executed
         :param delimiter: str, delimiter used to separate queries in text file by default its '---'
-        :param output: str, either 'single' or 'many' denoting output of queries should be in single file or multiple files \ndefault its single
+        :param output_format: str, either 'json' or 'csv'\ndefault its json
+        :param output: str, either 'single' or 'many' denoting output of queries should be in single json file or multiple json files \ndefault its single
+            Note csv format will have one file per query
         :param output_dir: str,  directory name to save response files to
         """
 
+        # fallback
+        if output_format not in ["json", 'csv']:
+            output_format = "json"
+
+        # invalid output set to single
+        if output not in ["single", "many"]:
+            output = "single"
+
+        elif output == "single" and output_format == "csv":
+            output = "many"
+
         try:
-
-            # invalid output set to single
-
-            if output not in ["single", "many"]:
-                output = "single"
 
             content = ""
             with open(fileSource) as f:
@@ -59,28 +147,48 @@ class WikiSparql(WikiBase):
             cnt = 1
             result = []
             for query in queries:
+                sys.stdout.flush()
                 x = WikiSparql.execute(query)
                 result.append(x)
                 print(f"Executed query {cnt}")
                 cnt += 1
+                # time.sleep(1)
+                sys.stdout.flush()
+
+            t = datetime.now()
 
             # create directory if not exist
             if not os.path.isdir(output_dir):
                 os.mkdir(output_dir)
 
-            t = datetime.now()
-            if output == 'single':
-                WikiSparql.dumpResult(
-                    result, f"{output_dir}/SparQL_Result_{t}.json")
-                print(f"Done Execution, stored results at {
-                      output_dir}/SparQL_Result_{t}.json")
-                return result
+            if output_format == "csv":
+                for i, qRes in enumerate(result):
+                    csvF = WikiSparql.convertToCSVForm(qRes, lang)
+                    sys.stdout.flush()
+                    if not csvF["success"]:
+                        # write to json
+                        WikiSparql.dumpResult(
+                            x, f"{output_dir}/SparQL_Result_{t}_{i+1}.json")
+                    else:
+                        WikiSparql.dumpCSV(
+                            f"{output_dir}/SparQL_Result_{t}_{i+1}.csv", csvF["head"], csvF["data"])
+                    sys.stdout.flush()
 
-            # one file per query
-            for i, x in enumerate(result):
-                WikiSparql.dumpResult(
-                    x, f"{output_dir}/SparQL_Result_{t}_{i+1}.json")
-                sys.stdout.flush()
+            # JSON form
+            else:
+                if output == 'single':
+                    WikiSparql.dumpResult(
+                        result, f"{output_dir}/SparQL_Result_{t}.json")
+                    print(f"Done Execution, stored results at {
+                        output_dir}/SparQL_Result_{t}.json")
+                    return result
+
+                # one file per query
+                for i, x in enumerate(result):
+                    sys.stdout.flush()
+                    WikiSparql.dumpResult(
+                        x, f"{output_dir}/SparQL_Result_{t}_{i+1}.json")
+                    sys.stdout.flush()
 
             print(f"Done execution check {output_dir}")
             return result
@@ -114,6 +222,7 @@ LIMIT 10
 def test_execute(fname):
 
     res = WikiSparql.execute(humans)
+    # WikiSparql.parseResultToIds(res)
     print("Execute DONE")
     WikiSparql.dumpResult(res, fname)
 
@@ -121,7 +230,9 @@ def test_execute(fname):
 def test_execute_many():
 
     res = WikiSparql.execute_many(
-        "sparql_test/queries.txt", output="many", output_dir="bulk_sparql")
+        "sparql_test/queriesLow.txt", output="single", output_dir="bulk_sparql", output_format="csv", lang=["en", "fr"])
+    # res = WikiSparql.execute_many(
+    #     "sparql_test/queries.txt", output="single", output_dir="bulk_sparql")
     # "sparql_test/queries.txt",  output_dir="bulk_sparql")
     # "sparql_test/queries.txt")
     print("Execute Many DONE")
@@ -131,7 +242,8 @@ if __name__ == "__main__":
 
     print(datetime.now())
     # test execute
-    # test_execute("sparql_test/test2_humans.json")
+    # test_execute("sparql_test/test3_IDS.json")
 
     # test execute many
     test_execute_many()
+    # WikiSparql.convertToCSVForm(res1, lang=['en'])
