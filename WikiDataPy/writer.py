@@ -8,6 +8,8 @@ load_dotenv()
 
 class WikiWriter(WikiBase):
 
+    API_ENDPOINT = "https://test.wikidata.org/w/api.php"
+
     def __init__(self, username, password):
         self.username = username
         self.password = password

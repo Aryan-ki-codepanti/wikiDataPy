@@ -7,23 +7,24 @@ from BASE import WikiBase
 class WikiReader(WikiBase):
 
     @staticmethod
-    def searchEntities(query, fields=["description"], n=None, lang="en"):
+    def searchEntities(query, fields=["id", "description"], n=None, lang="en", reslang="en"):
         """
         given a query searches knowledgebase for the relevant items
 
         return description as 1st field along with other fields specified by fields argument
 
-        :param fields: list of fields fields to return (id,title,url, label,description) (default description)
-        :param lang: can be provided but if results are empty English (en) is used as fallback
+        :param fields: list of fields fields to return (id,title,url, label,description) (default id,description)
+        :param lang: can be provided to perform search by but if results are empty English (en) is used as fallback
+        :param reslang: get results in this language but if results are empty English (en) is used as fallback
         :param n: specifies number of descriptors to be returned, by default all will be returned
-
         """
 
         params = {
             "action": "wbsearchentities",
             "format": "json",
             "language": lang,
-            "search": query
+            "search": query,
+            "uselang": reslang
         }
 
         if n:
@@ -40,10 +41,9 @@ class WikiReader(WikiBase):
                     l[k] = i[k]
             ans.append(l)
 
-        # unlist if only 1 field
-
+        # fallback to english language if no result
         if not ans:
-            return WikiReader.searchEntities(query, fields, n=n, lang="en")
+            return WikiReader.searchEntities(query, fields, n=n)
 
         return ans
 
@@ -115,11 +115,15 @@ class WikiReader(WikiBase):
 
 
 def searchEntityTest(fname):
-    q = "ambani"
+    q = "ironman"
     ans = WikiReader.searchEntities(
         q, ["description", "url", "id"],  lang="hi", n=20)
+
+    ans2 = WikiReader.searchEntities(
+        "हिन्दी विकिपीडिया", lang="hi", n=10, reslang="en")
+    # pprint.pprint(ans2)
     print("DONE search Entities")
-    WikiReader.dumpResult(ans, fname)
+    WikiReader.dumpResult(ans2, fname)
 
 
 def getEntitiesTest(fname):
@@ -149,10 +153,10 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     # search query test
-    # searchEntityTest("reader_result/test_SearchEntity4.json")
+    searchEntityTest("demo/1_searchEntities.json")
 
     # get entities test
-    getEntitiesTest("reader_result/test_GetEntities3.json")
+    # getEntitiesTest("reader_result/test_GetEntities3.json")
 
     # get claims test
     # getClaimTest("reader_result/test_GetClaimTest3.json")

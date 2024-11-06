@@ -181,7 +181,7 @@ def bulk_create_entities(w: BulkWriter):
     # f2 = "bulk/test_create_5Mul.json"  # lot of creations
 
     f1 = "bulk/testMul_Newcreate6.csv"
-    f2 = "bulk/test_create_New6Mul.csv"  # lot of creations
+    f2 = "bulk/test_create_New6Mul_LATEST.csv"  # lot of creations
 
     res = w.createEntitiesFromCSV(f1, outputFile=f2)
     print("Bulk Create done")
