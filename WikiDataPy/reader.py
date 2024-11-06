@@ -2,11 +2,15 @@
 import requests
 import pprint
 from BASE import WikiBase
+# from sparql import WikiSparql
 
 
 class WikiReader(WikiBase):
 
+    API_ENDPOINT = "https://test.wikidata.org/w/api.php"
+
     # helper
+
     def getClaimValue(vtype: str, c: dict):
         if vtype == "monolingualtext":
             return c["value"]["text"]
@@ -24,7 +28,7 @@ class WikiReader(WikiBase):
             return c["value"]
         return ""
 
-        # functionalities
+    # functionalities
 
     @staticmethod
     def searchEntities(query, fields=["id", "description"], n=None, lang="en", reslang="en", outputFile="1_searchResults.csv"):
@@ -91,7 +95,7 @@ class WikiReader(WikiBase):
         return ans
 
     @staticmethod
-    def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}):
+    def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile=None):
         '''
         getEntities
 
@@ -127,6 +131,19 @@ class WikiReader(WikiBase):
             return res['error']
         if "entities" in res:
             res = res["entities"]
+
+        if outputFile:
+            if outputFile.endswith(".csv"):
+                x = WikiReader.convertToCSVForm(
+                    res, options["languages"].split("|"))
+                if not x["success"]:
+                    print("Can't write to csv")
+                else:
+                    WikiBase.dumpCSV(outputFile, x["head"], x["data"])
+            elif outputFile.endswith(".json"):
+                WikiBase.dumpResult(res, outputFile)
+            else:
+                print("Invalid output file format")
 
         return res
 
@@ -197,17 +214,17 @@ def searchEntityTest():
     print("DONE search Entities")
 
 
-def getEntitiesTest(fname):
+def getEntitiesTest():
 
     # options = {"languages": ["en", "fr", "hi"], "sitelinks": [
     #     "enwiki"], "props": ["descriptions", "labels"]}
-    options = {"props": ["descriptions", "labels"]}
+    options = {"languages": ["en", "hi"], "props": ["descriptions", "labels"]}
 
-    ids = ["Q42", "Q298547", "Q5"]
+    ids = ["Q42", "Q298547", "Q5", "Q236478", "Q236479"]
     jackson = "Q2381"
-    res = WikiReader.getEntitiesByIds(ids, options)
+    res = WikiReader.getEntitiesByIds(
+        ids, options, outputFile="demo/2_getEntities.json")
     print("Done get entities")
-    WikiReader.dumpResult(res, fname)
 
 
 def getClaimTest():
@@ -226,7 +243,7 @@ if __name__ == "__main__":
     # searchEntityTest()
 
     # get entities test
-    # getEntitiesTest("reader_result/test_GetEntities3.json")
+    getEntitiesTest()
 
     # get claims test
-    getClaimTest()
+    # getClaimTest()

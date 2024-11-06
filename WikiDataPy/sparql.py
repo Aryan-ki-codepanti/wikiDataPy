@@ -13,39 +13,6 @@ class WikiSparql(WikiBase):
     API_ENDPOINT = "https://query.wikidata.org/sparql"
 
     @staticmethod
-    def convertToCSVForm(data, lang=["en"]):
-
-        try:
-            dt = []
-            hdr = ['id']  # then glosses label description in langs
-
-            for l in lang:
-                hdr.extend([f'label-{l}', f'description-{l}', f'gloss-{l}'])
-
-            for queryRes in data:
-                ent = data[queryRes]
-                rec = {}
-                rec['id'] = ent['id']
-                # for keys in ['labels','descriptions','glosses']
-                for l in lang:
-                    rec[f'label-{l}'] = rec[f'description-{l}'] = rec[f'gloss-{l}'] = ''
-
-                    if "labels" in ent and l in ent['labels']:
-                        rec[f'label-{l}'] = ent['labels'][l]['value']
-
-                    if "descriptions" in ent and l in ent['descriptions']:
-                        rec[f'description-{l}'] = ent['descriptions'][l]['value']
-
-                    if "glosses" in ent and l in ent['glosses']:
-                        rec[f'gloss-{l}'] = ent['glosses'][l]['value']
-
-                # x[queryRes].keys()
-                dt.append(rec)
-            return {"success": 1, "head": hdr, "data": dt}
-        except Exception as e:
-            return {"success": 0, "data": data}
-
-    @staticmethod
     def parseResultToIds(res):
         if "results" not in res:
             return ""
@@ -163,7 +130,7 @@ class WikiSparql(WikiBase):
 
             if output_format == "csv":
                 for i, qRes in enumerate(result):
-                    csvF = WikiSparql.convertToCSVForm(qRes, lang)
+                    csvF = WikiSparql.convertToCSVForm(qRes, lang, gloss=True)
                     sys.stdout.flush()
                     if not csvF["success"]:
                         # write to json
@@ -246,4 +213,3 @@ if __name__ == "__main__":
 
     # test execute many
     test_execute_many()
-    # WikiSparql.convertToCSVForm(res1, lang=['en'])

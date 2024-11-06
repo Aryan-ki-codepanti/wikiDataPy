@@ -41,3 +41,43 @@ class WikiBase:
                 writer.writerows(data)
         except Exception as e:
             print("Error while writing")
+
+    @staticmethod
+    def convertToCSVForm(data, lang=["en"], gloss=False):
+        """
+            gloss boolean controls wether gloss field included or not
+        """
+        try:
+            dt = []
+            hdr = ['id']  # then glosses label description in langs
+
+            for l in lang:
+                h1 = [f'label-{l}', f'description-{l}']
+                if gloss:
+                    h1.append(f'gloss-{l}')
+                hdr.extend(h1)
+
+            for queryRes in data:
+                ent = data[queryRes]
+                rec = {}
+                rec['id'] = ent['id']
+                # for keys in ['labels','descriptions','glosses']
+                for l in lang:
+                    rec[f'label-{l}'] = rec[f'description-{l}'] = ''
+                    if gloss:
+                        rec[f'gloss-{l}'] = ''
+
+                    if "labels" in ent and l in ent['labels']:
+                        rec[f'label-{l}'] = ent['labels'][l]['value']
+
+                    if "descriptions" in ent and l in ent['descriptions']:
+                        rec[f'description-{l}'] = ent['descriptions'][l]['value']
+
+                    if gloss and "glosses" in ent and l in ent['glosses']:
+                        rec[f'gloss-{l}'] = ent['glosses'][l]['value']
+
+                # x[queryRes].keys()
+                dt.append(rec)
+            return {"success": 1, "head": hdr, "data": dt}
+        except Exception as e:
+            return {"success": 0, "data": data}
