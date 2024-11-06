@@ -10,7 +10,6 @@ class WikiReader(WikiBase):
     API_ENDPOINT = "https://test.wikidata.org/w/api.php"
 
     # helper
-
     def getClaimValue(vtype: str, c: dict):
         if vtype == "monolingualtext":
             return c["value"]["text"]
@@ -42,8 +41,7 @@ class WikiReader(WikiBase):
         :param reslang: get results in this language but if results are empty English (en) is used as fallback
         :param n: specifies number of descriptors to be returned, by default all will be returned
 
-        :param fname: specifies number of descriptors to be returned, by default all will be returned
-        :param format: specifies type of result file (csv / json) default csv
+        :param outputFile: specifies number of descriptors to be returned, by default all will be returned
 
 
         """
@@ -101,12 +99,12 @@ class WikiReader(WikiBase):
 
         :param id_: list of ids of entities to fetch
         :param options: set options like languages sitelinks and properties to fetch
+        :param outputFile: specifies number of descriptors to be returned, by default all will be returned
 
         default options\n
             - languages : "en"
             - props : "descriptions"
             - sites : "enwiki"
-
 
         '''
 
@@ -153,6 +151,8 @@ class WikiReader(WikiBase):
         get claims of entity with ID id_
 
         :param id_: id of item whose claims need to be fetched
+        :param outputFile: specifies number of descriptors to be returned, by default all will be returned
+
 
         options
             - rank: normal default (One of the following values: deprecated, normal, preferred)
@@ -243,7 +243,7 @@ if __name__ == "__main__":
     # searchEntityTest()
 
     # get entities test
-    getEntitiesTest()
+    # getEntitiesTest()
 
     # get claims test
     # getClaimTest()

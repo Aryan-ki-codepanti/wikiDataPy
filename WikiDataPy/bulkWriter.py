@@ -15,9 +15,10 @@ class BulkWriter(WikiWriter):
 
     DELTA = 5
 
-    def addClaimsFromCSV(self, fileSource: str, header: bool = True):
+    def addClaimsFromCSV(self, fileSource: str, header: bool = True, outputFile=None):
         """
-        Create a new claim on a Wikidata entity.
+        Create a new claim on a Wikidata entity.\n
+        *Claims of type entity_id, property_id, value_id*
 
         :param fileSource: str, the path  of the CSV file having data as entity_id, property_id,value_id
         :param header:  boolean specifying if csv file has header or not
@@ -35,8 +36,28 @@ class BulkWriter(WikiWriter):
                     next(reader)
 
                 resp = []
+                fields = ["id", "entity_id", "property_id", "value_id"]
+                csvData = []
                 for i in reader:
-                    resp.append(self.addClaim(i[0], i[1], i[2]))
+                    dt = {"entity_id": i[0],
+                          "property_id": i[1], "value_id": i[2]}
+                    x = self.addClaim(i[0], i[1], i[2])
+
+                    dt["id"] = ""
+                    if "claim" in x and "id" in x["claim"]:
+                        dt["id"] = x["claim"]["id"]
+
+                    resp.append(x)
+                    csvData.append(dt)
+
+                if outputFile:
+                    if outputFile.endswith(".json"):
+                        WikiWriter.dumpResult(resp, outputFile)
+
+                    elif outputFile.endswith(".csv"):
+                        WikiWriter.dumpCSV(outputFile, fields, csvData)
+                    else:
+                        print("Invalid output file specified. Specify JSON/CSV")
                 return resp
 
         except Exception as e:
@@ -167,11 +188,10 @@ class BulkWriter(WikiWriter):
 
 
 def bulk_add_claim_test(w: BulkWriter):
-    f1 = "bulk/test1_CLAIM.csv"
-    f2 = "bulk/test_bulkAddClaim2.json"
-    res = w.addClaimsFromCSV(f1)
+    f1 = "demo/4_Addclaims.csv"
+    f2 = "demo/4_AddClaims_result.csv"
+    res = w.addClaimsFromCSV(f1, outputFile=f2)
     print("Bulk done")
-    w.dumpResult(res, f2)
 
 
 def bulk_create_entities(w: BulkWriter):
@@ -207,7 +227,7 @@ if __name__ == "__main__":
 
     # bulk_add_claim_test(w)
 
-    bulk_create_entities(w)
+    # bulk_create_entities(w)
 
     # bulk_edit_entities(w)
 

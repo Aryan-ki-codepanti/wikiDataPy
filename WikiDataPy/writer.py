@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 from BASE import WikiBase
 import json
+import pprint
+
 load_dotenv()
 
 
@@ -10,7 +12,15 @@ class WikiWriter(WikiBase):
 
     API_ENDPOINT = "https://test.wikidata.org/w/api.php"
 
-    def __init__(self, username, password):
+    def __init__(self, username: str, password: str):
+        """
+            Initialise writer object with login credentials\n 
+            Recommended to use environment variables
+
+            :param username: str, username of wikidata account
+            :param password:  str, password of wikidata account
+
+        """
         self.username = username
         self.password = password
         self.session = requests.Session()
@@ -225,6 +235,7 @@ class WikiWriter(WikiBase):
 
     def delete_entity(self, entity_id):
         """
+            *will work only your account has moderator status*\n
             Delete an entity on Wikidata by its ID.
 
             :param entity_id: str, the ID of the entity (e.g., "Q42")
@@ -440,13 +451,16 @@ def write_test(w: WikiWriter, fname):
     WikiWriter.dumpResult(res, fname)
 
 
-def add_claim_test(w: WikiWriter, fname):
+def add_claim_test(w: WikiWriter):
     # create / edit claim
-    e = "Q130641020"
-    p = "P31"  # instance of
-    v = "Q5"  # human
+    # test data
+    e = "Q236479"
+    p = "P98614"  # created my prop
+    v = "Q19"
+    # p = "P31"  # instance of
+    # v = "Q5"  # human
     res = w.addClaim(e, p, v)
-    WikiWriter.dumpResult(res, fname)
+    pprint.pprint(res)
 
 
 def remove_claim_test(w: WikiWriter, fname):
@@ -516,7 +530,7 @@ if __name__ == "__main__":
     # write_test(w, "writer_result/test_create3.json")
 
     # add claim test
-    # add_claim_test(w, "writer_result/test_AddClaim_3new.json")
+    add_claim_test(w)
 
     # remove claims test
     # remove_claim_test(w, "writer_result/test_RemoveClaim1.json")
