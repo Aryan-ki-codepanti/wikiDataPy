@@ -7,7 +7,6 @@ class WikiBase:
     API_ENDPOINT = "https://www.wikidata.org/w/api.php"
     TEST = "test.json"
 
-    # testing purpose
     @staticmethod
     def dumpResult(data, fname=None):
         """
