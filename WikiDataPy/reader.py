@@ -6,6 +6,26 @@ from BASE import WikiBase
 
 class WikiReader(WikiBase):
 
+    # helper
+    def getClaimValue(vtype: str, c: dict):
+        if vtype == "monolingualtext":
+            return c["value"]["text"]
+
+        elif vtype == "quantity":
+            return c["value"]["amount"]
+
+        elif vtype == "time":
+            return c["value"]["time"]
+
+        elif vtype == "wikibase-entityid":
+            return c["value"]["id"]
+
+        elif vtype == "string":
+            return c["value"]
+        return ""
+
+        # functionalities
+
     @staticmethod
     def searchEntities(query, fields=["id", "description"], n=None, lang="en", reslang="en", outputFile="1_searchResults.csv"):
         """
@@ -51,6 +71,9 @@ class WikiReader(WikiBase):
             return WikiReader.searchEntities(query, fields, n=n)
 
         # try to output
+
+        if type(outputFile) != str:
+            return ans
 
         isCSV = outputFile.endswith(".csv")
         isJSON = outputFile.endswith(".json")
@@ -108,7 +131,7 @@ class WikiReader(WikiBase):
         return res
 
     @staticmethod
-    def getClaims(id_="Q42", options={"rank": "normal"}):
+    def getClaims(id_="Q42", options={"rank": "normal"}, outputFile=""):
         """
         get claims of entity with ID id_
 
@@ -130,6 +153,35 @@ class WikiReader(WikiBase):
 
         if "claims" in res:
             res = res["claims"]
+
+            if type(outputFile) != str:
+                return res
+
+            isCSV = outputFile.endswith(".csv")
+            isJSON = outputFile.endswith(".json")
+
+            if not isCSV and not isJSON:
+                print("Invalid output file")
+                return res
+
+            if isJSON:
+                WikiBase.dumpResult(res, outputFile)
+
+            if isCSV:
+                fields = list(['id', 'property_id', 'type', 'value'])
+                dt = []
+
+                for k, v in res.items():
+                    for c in v:
+                        if "mainsnak" in c:
+                            vType = c["mainsnak"]["datavalue"]["type"]
+                            rec = {
+                                "id": c["id"], "property_id": k, "type": vType
+                            }
+                            rec["value"] = WikiReader.getClaimValue(
+                                vType, c["mainsnak"]["datavalue"])
+                            dt.append(rec)
+                WikiBase.dumpCSV(outputFile, fields, dt)
 
         return res
 
@@ -158,11 +210,10 @@ def getEntitiesTest(fname):
     WikiReader.dumpResult(res, fname)
 
 
-def getClaimTest(fname):
+def getClaimTest():
     id_ = "Q298547"
-    res = WikiReader.getClaims(id_)
+    res = WikiReader.getClaims(id_, outputFile="demo/3_getClaim.csv")
     print("Done claim test")
-    WikiReader.dumpResult(res, fname)
 
 
 if __name__ == "__main__":
@@ -172,10 +223,10 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     # search query test
-    searchEntityTest()
+    # searchEntityTest()
 
     # get entities test
     # getEntitiesTest("reader_result/test_GetEntities3.json")
 
     # get claims test
-    # getClaimTest("reader_result/test_GetClaimTest3.json")
+    getClaimTest()
