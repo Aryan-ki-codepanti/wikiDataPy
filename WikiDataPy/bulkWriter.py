@@ -127,12 +127,18 @@ class BulkWriter(WikiWriter):
                     writeRes.append(curr)
                     sleep(BulkWriter.DELTA)
 
-                print(writeRes)
                 # write results to other CSV
 
-                with open(outputFile, mode="w", newline="") as f2:
-                    writer = csv.writer(f2)
-                    writer.writerows(writeRes)
+                if not outputFile or type(outputFile) != str:
+                    print("Invalid output file format specify JSON/CSV")
+
+                elif outputFile.endswith('.csv'):
+
+                    with open(outputFile, mode="w", newline="") as f2:
+                        writer = csv.writer(f2)
+                        writer.writerows(writeRes)
+                elif outputFile.endswith('.json'):
+                    WikiWriter.dumpResult(resp, outputFile)
                 return resp
 
         except Exception as e:
@@ -142,18 +148,19 @@ class BulkWriter(WikiWriter):
             print(
                 "If facing limit issues try after few time or increase BulkWriter.DELTA")
 
-    def editEntitiesFromCSV(self, fileSource: str, header=True):
+    def editEntitiesFromCSV(self, fileSource: str, header=True, outputFile=""):
         """
         TODO
         Performs a edit on Wikidata entity per row in CSV file specified by entity_id
 
         :param fileSource: str, the path  of the CSV file having
         :param header:  boolean specifying if csv file has header or not
+        :param outputFile:  CSV file to store status of edits
 
 
         CSV file format of rows (with optional header but specify if header present) 
         (can have multiple rows of same entity_id specifying different language label, description)
-        entity_id,language_code,label,description
+        entity_id,language_code,label,description,aliases
 
         for multiple labels/descriptions in more than one language , create 1 entity then use 'editEntitiesFromCSV' 
         from entities' ids with multiple rows , each row different language
@@ -172,11 +179,19 @@ class BulkWriter(WikiWriter):
                     next(reader)
 
                 resp = []
+                hdr = ["id", "success"]
+                csvDt = []
                 for i in reader:
-                    resp.append(self.createOrEditEntity(
-                        {i[1]: i[2]}, {i[1]: i[3]}, i[0]))
+                    x = self.createOrEditEntity(
+                        {i[1]: i[2]}, {i[1]: i[3]}, {i[1]: i[4].split("|")}, i[0])
+                    if "entity" in x and "success" in x:
+                        csvDt.append(
+                            {"id": x["entity"]["id"],  "success": x["success"]})
+                    resp.append(x)
 
                     # sleep(BulkWriter.DELTA)
+                if outputFile and type(outputFile) == str and outputFile.endswith(".csv"):
+                    WikiWriter.dumpCSV(outputFile, hdr, csvDt)
                 return resp
 
         except Exception as e:
@@ -200,8 +215,8 @@ def bulk_create_entities(w: BulkWriter):
     # f1 = "bulk/testMul_create.csv"
     # f2 = "bulk/test_create_5Mul.json"  # lot of creations
 
-    f1 = "bulk/testMul_Newcreate6.csv"
-    f2 = "bulk/test_create_New6Mul_LATEST.csv"  # lot of creations
+    f1 = "demo/5_bulkCreateEntities.csv"
+    f2 = "demo/5_bulkCreateResult.csv"  # lot of creations
 
     res = w.createEntitiesFromCSV(f1, outputFile=f2)
     print("Bulk Create done")
@@ -209,12 +224,12 @@ def bulk_create_entities(w: BulkWriter):
 
 
 def bulk_edit_entities(w: BulkWriter):
-    f1 = "bulk/test3_edit.csv"
-    f2 = "bulk/test_edit_1.json"
+    f1 = "demo/6_editEnt.csv"
+    f2 = "demo/6_editEntResult.csv"
 
-    res = w.editEntitiesFromCSV(f1)
+    res = w.editEntitiesFromCSV(f1, outputFile=f2)
     print("Bulk Edit done")
-    w.dumpResult(res, f2)
+    # w.dumpResult(res, f2)
 
 
 if __name__ == "__main__":
@@ -229,6 +244,6 @@ if __name__ == "__main__":
 
     # bulk_create_entities(w)
 
-    # bulk_edit_entities(w)
+    bulk_edit_entities(w)
 
     w.logout()
