@@ -8,6 +8,7 @@ from BASE import WikiBase
 class WikiReader(WikiBase):
 
     API_ENDPOINT = "https://test.wikidata.org/w/api.php"
+    API_ENDPOINT_PROD = "https://www.wikidata.org/w/api.php"
 
     # helper
     def getClaimValue(vtype: str, c: dict):
@@ -93,7 +94,7 @@ class WikiReader(WikiBase):
         return ans
 
     @staticmethod
-    def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile=None):
+    def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile=None, isTest=True):
         '''
         getEntities
 
@@ -107,6 +108,9 @@ class WikiReader(WikiBase):
             - sites : "enwiki"
 
         '''
+        api = WikiReader.API_ENDPOINT
+        if not isTest:
+            api = WikiReader.API_ENDPOINT_PROD
 
         id_ = "|".join(id_)
         if "sitelinks" in options:
@@ -120,7 +124,7 @@ class WikiReader(WikiBase):
         options.update(
             {"format": "json", "action": "wbgetentities", "ids": id_})
 
-        res = requests.get(WikiReader.API_ENDPOINT,
+        res = requests.get(api,
                            params=options).json()
 
         # error handling
@@ -243,7 +247,7 @@ if __name__ == "__main__":
     # searchEntityTest()
 
     # get entities test
-    # getEntitiesTest()
+    getEntitiesTest()
 
     # get claims test
     # getClaimTest()

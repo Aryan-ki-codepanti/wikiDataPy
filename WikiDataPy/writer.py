@@ -26,6 +26,8 @@ class WikiWriter(WikiBase):
         self.session = requests.Session()
         self.csrf_token = ""
 
+    # auth
+
     def login(self):
 
         params = {
@@ -530,7 +532,7 @@ if __name__ == "__main__":
     # write_test(w, "writer_result/test_create3.json")
 
     # add claim test
-    add_claim_test(w)
+    # add_claim_test(w)
 
     # remove claims test
     # remove_claim_test(w, "writer_result/test_RemoveClaim1.json")

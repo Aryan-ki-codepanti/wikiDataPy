@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import sys
 import time
+import pprint
 import re
 
 
@@ -12,6 +13,7 @@ class WikiSparql(WikiBase):
 
     API_ENDPOINT = "https://query.wikidata.org/sparql"
 
+    # helper
     @staticmethod
     def parseResultToIds(res):
         if "results" not in res:
@@ -38,6 +40,8 @@ class WikiSparql(WikiBase):
                               for i in range(0, len(ids), batch)]
             return batched_result
         return []
+
+    # functionalities
 
     @staticmethod
     def execute(query: str):
@@ -68,10 +72,9 @@ class WikiSparql(WikiBase):
             for batch in batch_IDS:
                 sys.stdout.flush()
                 x = WikiReader.getEntitiesByIds(
-                    batch, options={"props": ["descriptions", "labels"]})
+                    batch, options={"props": ["descriptions", "labels"]}, isTest=False)
                 complete_data.update(x)
                 sys.stdout.flush()
-
             return complete_data
 
         else:
@@ -197,7 +200,7 @@ def test_execute(fname):
 def test_execute_many():
 
     res = WikiSparql.execute_many(
-        "sparql_test/queriesLow.txt", output="single", output_dir="bulk_sparql", output_format="csv", lang=["en", "fr"])
+        "demo/7_bulkSparql.txt", output="single", output_dir="demo", output_format="json", lang=["en", "hi"])
     # res = WikiSparql.execute_many(
     #     "sparql_test/queries.txt", output="single", output_dir="bulk_sparql")
     # "sparql_test/queries.txt",  output_dir="bulk_sparql")
