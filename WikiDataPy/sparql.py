@@ -15,7 +15,7 @@ class WikiSparql(WikiBase):
 
     # helper
     @staticmethod
-    def parseResultToIds(res):
+    def parseResultToIds(res: dict):
         if "results" not in res:
             return ""
 
@@ -82,7 +82,7 @@ class WikiSparql(WikiBase):
             return None
 
     @staticmethod
-    def execute_many(fileSource: str, delimiter="---", output_format="json", output="single", output_dir="sparql_test", lang=["en"]):
+    def execute_many(fileSource: str, delimiter: str = "---", output_format: str = "json", output: str = "single", output_dir: str = "sparql_test", lang: list[str] = ["en"]):
         """
         Executes and return responses of SPARQL queries and saves them to file(s) 
 

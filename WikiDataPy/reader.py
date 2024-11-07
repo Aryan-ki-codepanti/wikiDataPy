@@ -31,7 +31,7 @@ class WikiReader(WikiBase):
     # functionalities
 
     @staticmethod
-    def searchEntities(query, fields=["id", "description"], n=None, lang="en", reslang="en", outputFile="1_searchResults.csv"):
+    def searchEntities(query, fields: list[str] = ["id", "description"], n: int = None, lang: str = "en", reslang: str = "en", outputFile: str = "1_searchResults.csv"):
         """
         given a query searches knowledgebase for the relevant items
 
@@ -94,7 +94,7 @@ class WikiReader(WikiBase):
         return ans
 
     @staticmethod
-    def getEntitiesByIds(id_=["Q42"], options={"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile=None, isTest=True):
+    def getEntitiesByIds(id_: list[str] = ["Q42"], options: dict = {"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile: str = None, isTest: bool = True):
         '''
         getEntities
 
@@ -150,7 +150,7 @@ class WikiReader(WikiBase):
         return res
 
     @staticmethod
-    def getClaims(id_="Q42", options={"rank": "normal"}, outputFile=""):
+    def getClaims(id_: str = "Q42", options: dict = {"rank": "normal"}, outputFile: str = ""):
         """
         get claims of entity with ID id_
 

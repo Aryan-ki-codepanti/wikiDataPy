@@ -64,7 +64,7 @@ class BulkWriter(WikiWriter):
             print("Error", e)
             return e
 
-    def createEntitiesFromCSV(self, fileSource: str, header=True, delimiter=",", outputFile="created.csv"):
+    def createEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter: str = ",", outputFile: str = "created.csv"):
         """
         Create a new  Wikidata entity per row in CSV file
 
@@ -148,7 +148,7 @@ class BulkWriter(WikiWriter):
             print(
                 "If facing limit issues try after few time or increase BulkWriter.DELTA")
 
-    def editEntitiesFromCSV(self, fileSource: str, header=True, outputFile=""):
+    def editEntitiesFromCSV(self, fileSource: str, header: bool = True, outputFile: str = ""):
         """
         TODO
         Performs a edit on Wikidata entity per row in CSV file specified by entity_id

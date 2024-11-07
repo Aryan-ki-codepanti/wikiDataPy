@@ -88,7 +88,7 @@ class WikiWriter(WikiBase):
 
     # functionalities
 
-    def addClaim(self, entity_id, property_id, value_id):
+    def addClaim(self, entity_id: str, property_id: str, value_id: str):
         """
         Create a new claim on a Wikidata entity.
 
@@ -160,7 +160,7 @@ class WikiWriter(WikiBase):
         print("Claims removed successfully:", response)
         return response
 
-    def createOrEditEntity(self, labels, descriptions, aliases=None, entity_id=None):
+    def createOrEditEntity(self, labels: dict, descriptions: dict, aliases: dict = None, entity_id: str = None):
         '''
                 options
                 - labels
@@ -235,7 +235,7 @@ class WikiWriter(WikiBase):
 
         return response
 
-    def delete_entity(self, entity_id):
+    def delete_entity(self, entity_id: str):
         """
             *will work only your account has moderator status*\n
             Delete an entity on Wikidata by its ID.
@@ -259,7 +259,7 @@ class WikiWriter(WikiBase):
         print("Entity deleted successfully:", entity_id)
         return response
 
-    def setLabel(self, entity_id, language_code, label):
+    def setLabel(self, entity_id: str, language_code: str, label: str):
         """
         Create a new label or update existing label of entity (entity_id) having language_code
         with value label
@@ -298,7 +298,7 @@ class WikiWriter(WikiBase):
         print("Label added successfully")
         return resp
 
-    def setDescription(self, entity_id, language_code, description):
+    def setDescription(self, entity_id: str, language_code: str, description: str):
         """
         Create a new description or update existing description of entity (entity_id) having language_code
         with value description
@@ -337,7 +337,7 @@ class WikiWriter(WikiBase):
         print("Description added successfully")
         return resp
 
-    def setAliases(self, entity_id, aliases, language_code="en"):
+    def setAliases(self, entity_id: str, aliases: list[str], language_code: str = "en"):
         """
         Sets  aliase(s) of entity (entity_id) having language_code
 
@@ -377,7 +377,7 @@ class WikiWriter(WikiBase):
         print("Aliases added successfully")
         return resp
 
-    def addRemoveAliases(self, entity_id, add="", remove="", language_code="en"):
+    def addRemoveAliases(self, entity_id: str, add:  list[str] = "", remove: list[str] = "", language_code: str = "en"):
         """
         Sets  aliase(s) of entity (entity_id) having language_code
 
