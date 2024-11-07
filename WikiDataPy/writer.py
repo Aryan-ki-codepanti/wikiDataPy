@@ -465,55 +465,57 @@ def add_claim_test(w: WikiWriter):
     pprint.pprint(res)
 
 
-def remove_claim_test(w: WikiWriter, fname):
+def remove_claim_test(w: WikiWriter):
     # create / edit claim
-    guids = ["Q130532046$5E1439CD-D869-43FA-87C0-2025D98BF2E0",
-             "Q130532046$BC0D0706-F100-4351-B74D-4F96718E6D75"]
+    guids = [
+        "Q236479$51D261FB-F970-49AC-A3E9-7B73DEA90A8C"
+    ]
+
     res = w.removeClaims(guids)
 
-    WikiWriter.dumpResult(res, fname)
+    pprint.pprint(res)
 
 
-def label_test(w: WikiWriter, f):
+def label_test(w: WikiWriter):
 
-    ent = "Q130641020"
+    ent = "Q236479"
     lang = "hi"  # hindi
     val = "मैं आर्यन हूं ha"
 
     data = w.setLabel(ent, lang, val)
-    WikiWriter.dumpResult(data, f)
+    pprint.pprint(data)
 
 
-def desc_test(w: WikiWriter, f):
+def desc_test(w: WikiWriter):
 
-    ent = "Q130641020"
+    ent = "Q236479"
     lang = "hi"  # hindi
     val = "यह एक विवरण है विवरण है विवरण है विवरण है"
 
     data = w.setDescription(ent, lang, val)
-    WikiWriter.dumpResult(data, f)
+    pprint.pprint(data)
 
 
-def set_alias_test(w: WikiWriter, f):
+def set_alias_test(w: WikiWriter):
 
-    ent = "Q130641020"
-    lang = "en"  # hindi
-    # val = "MyEntity_1"
+    ent = "Q236479"
+    lang = "en"
     val = ["MyEntity_1", "MyEntity_2"]
 
     data = w.setAliases(ent, val, lang)
-    WikiWriter.dumpResult(data, f)
+
+    pprint.pprint(data)
 
 
-def addRem_alias_test(w: WikiWriter, f):
+def addRem_alias_test(w: WikiWriter):
 
-    ent = "Q130641020"
+    ent = "Q236479"
     lang = "en"
     add = ["E2", "E1"]
     remove = ["MyEntity_1"]
 
     data = w.addRemoveAliases(ent, add, remove, lang)
-    WikiWriter.dumpResult(data, f)
+    pprint.pprint(data)
 
 
 def delete_test(w: WikiWriter, f):
@@ -531,22 +533,22 @@ if __name__ == "__main__":
     # create / edit entity test
     # write_test(w, "writer_result/test_create3.json")
 
-    # add claim test
+    # 8 add claim test
     # add_claim_test(w)
 
-    # remove claims test
-    # remove_claim_test(w, "writer_result/test_RemoveClaim1.json")
+    # 9 remove claims test
+    # remove_claim_test(w)
 
-    # Label set test
-    # label_test(w, "writer_result/test_setLabel_3.json")
+    # 10 Label set test
+    # label_test(w)
 
-    # description set test
-    # desc_test(w, "writer_result/test_setDescription_3.json")
+    # 11 description set test
+    # desc_test(w)
 
-    #  set alias test
-    # set_alias_test(w, "writer_result/test_setAlias_3.json")
+    # 12 set alias test
+    # set_alias_test(w)
 
-    #  add remove alias test
-    # addRem_alias_test(w, "writer_result/test_AddRemAlias_3.json")
+    # 13 add remove alias test
+    # addRem_alias_test(w)
 
     w.logout()

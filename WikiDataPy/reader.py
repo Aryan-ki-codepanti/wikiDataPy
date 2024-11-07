@@ -210,7 +210,7 @@ class WikiReader(WikiBase):
 def searchEntityTest():
     q = "ironman"
     ans = WikiReader.searchEntities(
-        q, ["id", "url", "description"],  reslang="hi", n=20, outputFile="demo/1_searchEntities.csv")
+        q, ["id", "url", "label", "description"],  reslang="hi", n=20, outputFile="demo/1_searchEntities.csv")
 
     ans2 = WikiReader.searchEntities(
         "हिन्दी विकिपीडिया", lang="hi", n=10, reslang="hi", outputFile="demo/1_searchEntities.json", fields=["id", "label", "description"])
@@ -244,10 +244,10 @@ if __name__ == "__main__":
     # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
 
     # search query test
-    # searchEntityTest()
+    searchEntityTest()
 
     # get entities test
-    getEntitiesTest()
+    # getEntitiesTest()
 
     # get claims test
     # getClaimTest()
