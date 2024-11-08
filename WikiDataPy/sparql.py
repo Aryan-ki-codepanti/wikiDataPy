@@ -30,6 +30,9 @@ class WikiSparql(WikiBase):
                     continue
                 x = obj[k]["value"]
                 id_ = re.findall(r"(?<=/)[^/]+", x)
+                # id_ = x.split("/")
+                # http://www.wikidata.org/entity/Q848
+                # ['www.wikidata.org', 'entity', 'Q765']
                 if id_:
                     id_ = id_[-1]
                     ids.append(id_)
@@ -140,7 +143,7 @@ class WikiSparql(WikiBase):
                     if not csvF["success"]:
                         # write to json
                         WikiSparql.dumpResult(
-                            x, f"{output_dir}/SparQL_Result_{t}_{i+1}.json")
+                            qRes, f"{output_dir}/SparQL_Result_{t}_{i+1}.json")
                     else:
                         WikiSparql.dumpCSV(
                             f"{output_dir}/SparQL_Result_{t}_{i+1}.csv", csvF["head"], csvF["data"])
@@ -219,4 +222,4 @@ if __name__ == "__main__":
     # test_execute("sparql_test/test3_IDS.json")
 
     # test execute many
-    # test_execute_many()
+    test_execute_many()
