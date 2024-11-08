@@ -86,14 +86,16 @@ class WikiSparql(WikiBase):
         """
         Executes and return responses of SPARQL queries and saves them to file(s) 
 
-        response files will have format 'SparQL_Result_<time_stamp>.json'
+        response files will have format 'SparQL_Result_[time_stamp].json'
 
         :param fileSource: str, Path to txt file containing sparql queries to be executed
         :param delimiter: str, delimiter used to separate queries in text file by default its '---'
         :param output_format: str, either 'json' or 'csv'\ndefault its json
         :param output: str, either 'single' or 'many' denoting output of queries should be in single json file or multiple json files \ndefault its single
-            Note csv format will have one file per query
+
+        *Note csv format will have one file per query*\n
         :param output_dir: str,  directory name to save response files to
+        :param lang: list[str], filter languages for CSV results
         """
 
         # fallback
@@ -199,8 +201,10 @@ def test_execute(fname):
 
 def test_execute_many():
 
+    # res = WikiSparql.execute_many(
+    #     "demo/7_bulkSparql.txt", output="single", output_dir="demo", output_format="json", lang=["en", "hi"])
     res = WikiSparql.execute_many(
-        "demo/7_bulkSparql.txt", output="single", output_dir="demo", output_format="json", lang=["en", "hi"])
+        "demo/7_bulkSparql.txt",  output_dir="demo", output_format="csv", lang=["en", "hi"])
     # res = WikiSparql.execute_many(
     #     "sparql_test/queries.txt", output="single", output_dir="bulk_sparql")
     # "sparql_test/queries.txt",  output_dir="bulk_sparql")
@@ -215,4 +219,4 @@ if __name__ == "__main__":
     # test_execute("sparql_test/test3_IDS.json")
 
     # test execute many
-    test_execute_many()
+    # test_execute_many()

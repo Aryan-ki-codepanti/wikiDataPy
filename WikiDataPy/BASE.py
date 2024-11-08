@@ -8,7 +8,7 @@ class WikiBase:
     TEST = "test.json"
 
     @staticmethod
-    def dumpResult(data, fname=None):
+    def dumpResult(data: object, fname=None):
         """
         Writes python object to json file
 
@@ -26,7 +26,7 @@ class WikiBase:
             print("Error")
 
     @staticmethod
-    def dumpCSV(fname, head, data):
+    def dumpCSV(fname: str, head: list[str], data: list):
         """
         Writes python object to CSV file
 
@@ -43,7 +43,7 @@ class WikiBase:
             print("Error while writing")
 
     @staticmethod
-    def convertToCSVForm(data, lang=["en"], gloss=False):
+    def convertToCSVForm(data: dict, lang=["en"], gloss=False):
         """
             gloss boolean controls wether gloss field included or not
         """

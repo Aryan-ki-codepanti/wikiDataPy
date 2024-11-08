@@ -13,15 +13,17 @@ load_dotenv()
 
 class BulkWriter(WikiWriter):
 
-    DELTA = 5
+    DELTA = 2
 
-    def addClaimsFromCSV(self, fileSource: str, header: bool = True, outputFile=None):
+    def addClaimsFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None):
         """
         Create a new claim on a Wikidata entity.\n
         *Claims of type entity_id, property_id, value_id*
 
         :param fileSource: str, the path  of the CSV file having data as entity_id, property_id,value_id
         :param header:  boolean specifying if csv file has header or not
+        :param delimiter:  source csv file separator
+        :param outputFile:  CSV file to store result
         """
 
         if not self.csrf_token:
@@ -70,6 +72,8 @@ class BulkWriter(WikiWriter):
 
         :param fileSource: str, the path  of the CSV file having
         :param header:  boolean specifying if csv file has header or not
+        :param delimiter:  source csv file separator
+        :param outputFile:  store results here
 
 
         CSV file format of rows (with optional header but specify if header present)
@@ -148,22 +152,19 @@ class BulkWriter(WikiWriter):
             print(
                 "If facing limit issues try after few time or increase BulkWriter.DELTA")
 
-    def editEntitiesFromCSV(self, fileSource: str, header: bool = True, outputFile: str = ""):
+    def editEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile: str = ""):
         """
-        TODO
         Performs a edit on Wikidata entity per row in CSV file specified by entity_id
 
         :param fileSource: str, the path  of the CSV file having
-        :param header:  boolean specifying if csv file has header or not
+        :param header:  boolean specifying if csv file has header or not (default True)
+        :param delimiter:  source csv file separator
         :param outputFile:  CSV file to store status of edits
 
 
         CSV file format of rows (with optional header but specify if header present) 
         (can have multiple rows of same entity_id specifying different language label, description)
         entity_id,language_code,label,description,aliases
-
-        for multiple labels/descriptions in more than one language , create 1 entity then use 'editEntitiesFromCSV' 
-        from entities' ids with multiple rows , each row different language
 
         """
 
@@ -173,7 +174,7 @@ class BulkWriter(WikiWriter):
 
         try:
             with open(fileSource, "r") as f:
-                reader = csv.reader(f)
+                reader = csv.reader(f, delimiter=delimiter)
 
                 if header:  # header set
                     next(reader)

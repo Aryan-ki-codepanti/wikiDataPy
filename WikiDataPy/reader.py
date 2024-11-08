@@ -11,6 +11,7 @@ class WikiReader(WikiBase):
     API_ENDPOINT_PROD = "https://www.wikidata.org/w/api.php"
 
     # helper
+    @staticmethod
     def getClaimValue(vtype: str, c: dict):
         if vtype == "monolingualtext":
             return c["value"]["text"]
@@ -35,14 +36,14 @@ class WikiReader(WikiBase):
         """
         given a query searches knowledgebase for the relevant items
 
-        return description as 1st field along with other fields specified by fields argument
+        return  field values specified by fields argument
 
         :param fields: list of fields fields to return (id,title,url, label,description) (default id,description)
         :param lang: can be provided to perform search by but if results are empty English (en) is used as fallback
         :param reslang: get results in this language but if results are empty English (en) is used as fallback
-        :param n: specifies number of descriptors to be returned, by default all will be returned
+        :param n: specifies number of results to be returned, by default all will be returned
 
-        :param outputFile: specifies number of descriptors to be returned, by default all will be returned
+        :param outputFile: store output at this file (CSV/JSON)
 
 
         """
@@ -57,7 +58,7 @@ class WikiReader(WikiBase):
 
         if n:
             params["limit"] = n
-        res = requests.get(WikiReader.API_ENDPOINT, params=params).json()
+        res = requests.get(WikiReader.API_ENDPOINT_PROD, params=params).json()
         res = [] if "search" not in res else res["search"]
         # pprint.pprint(res)
 
@@ -150,22 +151,26 @@ class WikiReader(WikiBase):
         return res
 
     @staticmethod
-    def getClaims(id_: str = "Q42", options: dict = {"rank": "normal"}, outputFile: str = ""):
+    def getClaims(id_: str = "Q42", options: dict = {"rank": "normal"}, outputFile: str = "", isTest: bool = True):
         """
         get claims of entity with ID id_
 
         :param id_: id of item whose claims need to be fetched
-        :param outputFile: specifies number of descriptors to be returned, by default all will be returned
+        :param outputFile: specifies output file (JSON/CSV)
 
 
         options
             - rank: normal default (One of the following values: deprecated, normal, preferred)
         """
 
+        api = WikiReader.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiReader.API_ENDPOINT
+
         options.update(
             {"format": "json", "action": "wbgetclaims", "entity": id_})
 
-        res = requests.get(WikiReader.API_ENDPOINT,
+        res = requests.get(api,
                            params=options).json()
 
         if "error" in res:
@@ -224,30 +229,27 @@ def getEntitiesTest():
     #     "enwiki"], "props": ["descriptions", "labels"]}
     options = {"languages": ["en", "hi"], "props": ["descriptions", "labels"]}
 
-    ids = ["Q42", "Q298547", "Q5", "Q236478", "Q236479"]
-    jackson = "Q2381"
+    ids = ["Q42", "Q236478", "Q236479"]
     res = WikiReader.getEntitiesByIds(
-        ids, options, outputFile="demo/2_getEntities.json")
+        ids, options, outputFile="demo/2_getEntities.csv")
     print("Done get entities")
 
 
 def getClaimTest():
-    id_ = "Q298547"
-    res = WikiReader.getClaims(id_, outputFile="demo/3_getClaim.csv")
+    id_ = "Q42"
+    id_ = "Q236479"
+    res = WikiReader.getClaims(
+        id_, outputFile="demo/3_getClaim.csv")
     print("Done claim test")
 
 
 if __name__ == "__main__":
-    r = WikiReader()
-    q = "pen"
-
-    # ans = r.searchEntities(q, ["description", "url"], n=2, lang="fr-ca")
-
+    pass
     # search query test
-    searchEntityTest()
+    # searchEntityTest()
 
     # get entities test
-    # getEntitiesTest()
+    getEntitiesTest()
 
     # get claims test
     # getClaimTest()

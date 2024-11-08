@@ -468,7 +468,8 @@ def add_claim_test(w: WikiWriter):
 def remove_claim_test(w: WikiWriter):
     # create / edit claim
     guids = [
-        "Q236479$51D261FB-F970-49AC-A3E9-7B73DEA90A8C"
+        "Q236479$6E67DF14-724B-4A51-B8B7-29E2535064FA",
+        "Q236479$4A61C28E-FE76-4540-8440-EC3E10D00400"
     ]
 
     res = w.removeClaims(guids)
@@ -480,7 +481,7 @@ def label_test(w: WikiWriter):
 
     ent = "Q236479"
     lang = "hi"  # hindi
-    val = "मैं आर्यन हूं ha"
+    val = "मैं आर्यन हूं ha2"
 
     data = w.setLabel(ent, lang, val)
     pprint.pprint(data)
@@ -490,7 +491,7 @@ def desc_test(w: WikiWriter):
 
     ent = "Q236479"
     lang = "hi"  # hindi
-    val = "यह एक विवरण है विवरण है विवरण है विवरण है"
+    val = "यह एक विवरण है विवरण20 है विवरण है विवरण है"
 
     data = w.setDescription(ent, lang, val)
     pprint.pprint(data)
@@ -500,7 +501,7 @@ def set_alias_test(w: WikiWriter):
 
     ent = "Q236479"
     lang = "en"
-    val = ["MyEntity_1", "MyEntity_2"]
+    val = ["MyEntity_120", "MyEntity_2DEMO"]
 
     data = w.setAliases(ent, val, lang)
 
@@ -518,10 +519,10 @@ def addRem_alias_test(w: WikiWriter):
     pprint.pprint(data)
 
 
-def delete_test(w: WikiWriter, f):
-    e = "Q130712506"
+def delete_test(w: WikiWriter):
+    e = "Q236479"
     data = w.delete_entity(e)
-    WikiWriter.dumpResult(data, f)
+    pprint.pprint(data)
 
 
 if __name__ == "__main__":
@@ -550,5 +551,8 @@ if __name__ == "__main__":
 
     # 13 add remove alias test
     # addRem_alias_test(w)
+
+    # 14 DEL
+    # delete_test(w)
 
     w.logout()
