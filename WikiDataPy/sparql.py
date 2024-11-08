@@ -223,3 +223,9 @@ if __name__ == "__main__":
 
     # test execute many
     test_execute_many()
+
+
+# searchin  uggestions 75%
+# most relevant bulk writw by name
+# sparql
+# network X neophorge

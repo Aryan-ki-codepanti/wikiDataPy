@@ -220,8 +220,6 @@ def searchEntityTest():
     ans2 = WikiReader.searchEntities(
         "हिन्दी विकिपीडिया", lang="hi", n=10, reslang="hi", outputFile="demo/1_searchEntities.json", fields=["id", "label", "description"])
 
-    print("DONE search Entities")
-
 
 def getEntitiesTest():
 
@@ -249,7 +247,7 @@ if __name__ == "__main__":
     # searchEntityTest()
 
     # get entities test
-    getEntitiesTest()
+    # getEntitiesTest()
 
     # get claims test
-    # getClaimTest()
+    getClaimTest()

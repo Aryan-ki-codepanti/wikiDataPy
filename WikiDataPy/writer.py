@@ -432,7 +432,7 @@ Performing write/update  operations that require authentication , make sure to f
 # create / edit entity
 
 
-def write_test(w: WikiWriter, fname):
+def write_test(w: WikiWriter):
 
     labels = {
         "en": "Sample 2 ",
@@ -449,8 +449,7 @@ def write_test(w: WikiWriter, fname):
     }
 
     res = w.createOrEditEntity(
-        labels=labels, descriptions=descriptions, aliases=aliases, entity_id="Q130717335")
-    WikiWriter.dumpResult(res, fname)
+        labels=labels, descriptions=descriptions, aliases=aliases, entity_id="Q236479")
 
 
 def add_claim_test(w: WikiWriter):
@@ -468,8 +467,7 @@ def add_claim_test(w: WikiWriter):
 def remove_claim_test(w: WikiWriter):
     # create / edit claim
     guids = [
-        "Q236479$6E67DF14-724B-4A51-B8B7-29E2535064FA",
-        "Q236479$4A61C28E-FE76-4540-8440-EC3E10D00400"
+        "Q236560$84FD8F03-ADA8-46FA-A694-D4611A1D5DB2"
     ]
 
     res = w.removeClaims(guids)
@@ -479,9 +477,9 @@ def remove_claim_test(w: WikiWriter):
 
 def label_test(w: WikiWriter):
 
-    ent = "Q236479"
+    ent = "Q236560"
     lang = "hi"  # hindi
-    val = "मैं आर्यन हूं ha2"
+    val = "मैं आर्यन हूं ha2987"
 
     data = w.setLabel(ent, lang, val)
     pprint.pprint(data)
@@ -489,9 +487,9 @@ def label_test(w: WikiWriter):
 
 def desc_test(w: WikiWriter):
 
-    ent = "Q236479"
+    ent = "Q236560"
     lang = "hi"  # hindi
-    val = "यह एक विवरण है विवरण20 है विवरण है विवरण है"
+    val = "यह एक विवरण है विवरण20ohihs है विवरण है विवरण है"
 
     data = w.setDescription(ent, lang, val)
     pprint.pprint(data)
@@ -499,9 +497,9 @@ def desc_test(w: WikiWriter):
 
 def set_alias_test(w: WikiWriter):
 
-    ent = "Q236479"
-    lang = "en"
-    val = ["MyEntity_120", "MyEntity_2DEMO"]
+    ent = "Q236560"
+    lang = "hi"
+    val = ["उपनाम14", "उपनाम176"]
 
     data = w.setAliases(ent, val, lang)
 
@@ -532,7 +530,7 @@ if __name__ == "__main__":
     w.getCSRFTtoken()
 
     # create / edit entity test
-    # write_test(w, "writer_result/test_create3.json")
+    # write_test(w)
 
     # 8 add claim test
     # add_claim_test(w)
@@ -541,13 +539,13 @@ if __name__ == "__main__":
     # remove_claim_test(w)
 
     # 10 Label set test
-    # label_test(w)
+    label_test(w)
 
     # 11 description set test
-    # desc_test(w)
+    desc_test(w)
 
     # 12 set alias test
-    # set_alias_test(w)
+    set_alias_test(w)
 
     # 13 add remove alias test
     # addRem_alias_test(w)

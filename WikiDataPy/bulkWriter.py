@@ -241,10 +241,10 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    # bulk_add_claim_test(w)
+    bulk_add_claim_test(w)
 
     # bulk_create_entities(w)
 
-    bulk_edit_entities(w)
+    # bulk_edit_entities(w)
 
     w.logout()
