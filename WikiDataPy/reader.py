@@ -211,6 +211,19 @@ class WikiReader(WikiBase):
 
         return res
 
+    @staticmethod
+    def getRelatedEntitiesProps(id_: str, isTest=True, limit=None):
+        claims = WikiReader.getClaims(id_, outputFile=None, isTest=isTest)
+        ans = set()
+        for k, v in claims.items():
+            if v[0]["mainsnak"]["datavalue"]["type"] == "wikibase-entityid":
+                ans.add((k, v[0]["mainsnak"]["datavalue"]["value"]["id"]))
+
+            if limit and limit == len(ans):
+                return list(ans)
+
+        return list(ans)
+
 
 def searchEntityTest():
     q = "ironman"
