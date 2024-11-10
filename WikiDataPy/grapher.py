@@ -14,23 +14,26 @@ class WikiGraph:
         self.edges = set()
         self.nodes = set()
         self.names = {}
+        self.r = self.out_degree = 0
 
-        self.outdeg = 3
-
-    def buildGraph(self, current=None, r=3):
+    def buildGraph(self, current=None, r=3, out_degree=3):
         if not r:
             return
         if not current:
             current = self.src_id
 
+        if not self.r and not self.out_degree:
+            self.r = r
+            self.out_degree = out_degree
+
         self.nodes.add(current)
         ents = WikiReader.getRelatedEntitiesProps(
-            current,  isTest=False, limit=self.outdeg)
+            current,  isTest=False, limit=out_degree)
 
         # recurse
         for x, y in ents:
             self.edges.add((current, x, y))
-            self.buildGraph(current=y, r=r-1)
+            self.buildGraph(current=y, r=r-1, out_degree=out_degree)
 
     def plotGraph(self):
 
@@ -54,10 +57,16 @@ class WikiGraph:
         nx.draw_networkx_edge_labels(
             G, pos, edge_labels=edge_labels, font_color='red')
 
-        plt.title("Entity and Property Network Visualization")
+        # have meaningful title
+        if self.out_degree and self.r:
+            plt.title(f"""Entity and Property Network of {
+                      self.names[self.src_id]} (Max OutDegree : {self.out_degree} and r {self.r} )""")
+        else:
+            plt.title(f"""Entity and Property Network of {
+                      self.names[self.src_id]}""")
         plt.show()
 
-    def fetchNames(self, lang='en'):
+    def fetchNames(self):
         ids = set()
         for x, y, z in self.edges:
             ids.add(x)
@@ -67,19 +76,16 @@ class WikiGraph:
         ids = list(ids)
 
         x = WikiReader.getEntitiesByIds(
-            ids, options={"languages": [lang, "en"] if lang != 'en' else ['en'], "props": ["labels"]}, isTest=False)
+            ids, options={"languages": ['en'], "props": ["labels"]}, isTest=False)
 
         for k, v in x.items():
 
             self.names[k] = k
-            if 'labels' in v:
-                if lang in v['labels']:
-                    self.names[k] = v['labels'][lang]['value']
-                elif 'en' in v['labels']:
-                    self.names[k] = v['labels']['en']['value']
+            if 'labels' in v and 'en' in v['labels']:
+                self.names[k] = v['labels']['en']['value']
 
-    def plotNamedGraph(self, lang='en'):
-        self.fetchNames(lang=lang)
+    def plotNamedGraph(self):
+        self.fetchNames()
         G = nx.DiGraph()
 
         for start, label, end in self.edges:
@@ -101,15 +107,22 @@ class WikiGraph:
         nx.draw_networkx_edge_labels(
             G, pos, edge_labels=edge_labels, font_color='red', font_size=7)
 
-        plt.title("Entity and Property Network Visualization")
+        # have meaningful title
+        if self.out_degree and self.r:
+
+            plt.title(f"""Entity and Property Network of {
+                self.names[self.src_id]} (Max OutDegree : {self.out_degree} and r {self.r} )""")
+        else:
+            plt.title(f"""Entity and Property Network of {
+                      self.names[self.src_id]}""")
         plt.show()
 
 
 def test_build_graph():
     g = WikiGraph("Q5")
-
     g.buildGraph(r=2)
-    g.plotNamedGraph()
+    print(g.r, g.out_degree)
+    # g.plotNamedGraph()
     # g.plot_graph()
     # pprint(g.nodes)
     # pprint(g.edges)
