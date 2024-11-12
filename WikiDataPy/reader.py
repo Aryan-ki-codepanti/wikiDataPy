@@ -224,6 +224,12 @@ class WikiReader(WikiBase):
 
         return list(ans)
 
+    @staticmethod
+    def reverseLookup(label, lang='en'):
+        x = WikiReader.searchEntities(
+            label, ['id', 'label', 'aliases', 'description'], lang=lang, outputFile=None)
+        return x
+
 
 def searchEntityTest():
     q = "ironman"
@@ -254,6 +260,12 @@ def getClaimTest():
     print("Done claim test")
 
 
+def reverseLookupTest():
+    lbl = 'chocolate'
+    res = WikiReader.reverseLookup(lbl)
+    WikiReader.dumpResult(res, "chocolate.json")
+
+
 if __name__ == "__main__":
     pass
     # search query test
@@ -263,4 +275,35 @@ if __name__ == "__main__":
     # getEntitiesTest()
 
     # get claims test
-    getClaimTest()
+    # getClaimTest()
+
+    # reverseLookup test
+    reverseLookupTest()
+
+
+x = [{'aliases': ['chocolate'],
+      'description': 'tree native to tropical South America producing cocoa beans '
+      '- the source plant of cacao and chocolate',
+      'id': 'Q42385',
+      'label': 'cacao'},
+
+     {'description': 'nutritionally dense or sweet food product from the seed of '
+      'Theobroma cacao - cocoa bean',
+      'id': 'Q195',
+      'label': 'chocolate'},
+
+     {'description': 'tone of dark brown', 'id': 'Q3309916', 'label': 'chocolate'},
+
+     {'description': '2005 film directed by Vivek Agnihotri',
+      'id': 'Q592915',
+      'label': 'Chocolate'},
+
+     {'description': '2004 song by Kylie Minogue',
+     'id': 'Q861001',
+      'label': 'Chocolate'},
+     {'description': '2008 Thai martial arts film directed by Prachya Pinkaew',
+      'id': 'Q466354',
+      'label': 'Chocolate'},
+     {'description': '5th episode of the 1st season of Masters of Horror',
+     'id': 'Q2470017',
+      'label': 'Chocolate'}]

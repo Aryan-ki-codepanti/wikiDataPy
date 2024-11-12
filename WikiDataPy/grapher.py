@@ -35,7 +35,7 @@ class WikiGraph:
             self.edges.add((current, x, y))
             self.buildGraph(current=y, r=r-1, out_degree=out_degree)
 
-    def plotGraph(self):
+    def plotGraph(self, outputFile):
 
         G = nx.DiGraph()
 
@@ -64,7 +64,13 @@ class WikiGraph:
         else:
             plt.title(f"""Entity and Property Network of {
                       self.names[self.src_id]}""")
-        plt.show()
+        fig = plt.gcf()
+
+        if type(outputFile) == str and (outputFile.lower().endswith(".pdf") or outputFile.lower().endswith(".png") or outputFile.lower().endswith(".jpg") or outputFile.lower().endswith(".jpeg")):
+            fig.savefig(outputFile)
+
+        else:
+            plt.show()
 
     def fetchNames(self):
         ids = set()
@@ -84,7 +90,7 @@ class WikiGraph:
             if 'labels' in v and 'en' in v['labels']:
                 self.names[k] = v['labels']['en']['value']
 
-    def plotNamedGraph(self):
+    def plotNamedGraph(self, outputFile):
         self.fetchNames()
         G = nx.DiGraph()
 
@@ -115,7 +121,14 @@ class WikiGraph:
         else:
             plt.title(f"""Entity and Property Network of {
                       self.names[self.src_id]}""")
-        plt.show()
+
+        fig = plt.gcf()
+
+        if type(outputFile) == str and (outputFile.lower().endswith(".pdf") or outputFile.lower().endswith(".png") or outputFile.lower().endswith(".jpg") or outputFile.lower().endswith(".jpeg")):
+            fig.savefig(outputFile)
+
+        else:
+            plt.show()
 
 
 def test_build_graph():
