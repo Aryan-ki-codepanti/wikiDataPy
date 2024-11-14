@@ -35,7 +35,7 @@ class WikiGraph:
             self.edges.add((current, x, y))
             self.buildGraph(current=y, r=r-1, out_degree=out_degree)
 
-    def plotGraph(self, outputFile):
+    def plotGraph(self, outputFile=None):
 
         G = nx.DiGraph()
 
@@ -66,7 +66,7 @@ class WikiGraph:
                       self.names[self.src_id]}""")
         fig = plt.gcf()
 
-        if type(outputFile) == str and (outputFile.lower().endswith(".pdf") or outputFile.lower().endswith(".png") or outputFile.lower().endswith(".jpg") or outputFile.lower().endswith(".jpeg")):
+        if outputFile and type(outputFile) == str and (outputFile.lower().endswith(".pdf") or outputFile.lower().endswith(".png") or outputFile.lower().endswith(".jpg") or outputFile.lower().endswith(".jpeg")):
             fig.savefig(outputFile)
 
         else:
@@ -83,14 +83,14 @@ class WikiGraph:
 
         x = WikiReader.getEntitiesByIds(
             ids, options={"languages": ['en'], "props": ["labels"]}, isTest=False)
-
+        # pprint(x)
         for k, v in x.items():
 
             self.names[k] = k
             if 'labels' in v and 'en' in v['labels']:
                 self.names[k] = v['labels']['en']['value']
 
-    def plotNamedGraph(self, outputFile):
+    def plotNamedGraph(self, outputFile=None):
         self.fetchNames()
         G = nx.DiGraph()
 
@@ -124,7 +124,7 @@ class WikiGraph:
 
         fig = plt.gcf()
 
-        if type(outputFile) == str and (outputFile.lower().endswith(".pdf") or outputFile.lower().endswith(".png") or outputFile.lower().endswith(".jpg") or outputFile.lower().endswith(".jpeg")):
+        if outputFile and type(outputFile) == str and (outputFile.lower().endswith(".pdf") or outputFile.lower().endswith(".png") or outputFile.lower().endswith(".jpg") or outputFile.lower().endswith(".jpeg")):
             fig.savefig(outputFile)
 
         else:
@@ -132,9 +132,15 @@ class WikiGraph:
 
 
 def test_build_graph():
-    g = WikiGraph("Q5")
-    g.buildGraph(r=2)
-    print(g.r, g.out_degree)
+    # g = WikiGraph("Q5")
+    # g.buildGraph(r=2)
+    # print(g.r, g.out_degree)
+
+    elon_qid = "Q317521"
+    elonG = WikiGraph(elon_qid)
+    elonG.buildGraph(r=3, out_degree=3)
+    elonG.plotNamedGraph()
+
     # g.plotNamedGraph()
     # g.plot_graph()
     # pprint(g.nodes)

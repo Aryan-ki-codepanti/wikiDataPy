@@ -6,6 +6,8 @@ from dotenv import load_dotenv
 from writer import WikiWriter
 import json
 import csv
+from reader import WikiReader
+from pprint import pprint
 
 from time import sleep
 load_dotenv()
@@ -14,6 +16,7 @@ load_dotenv()
 class BulkWriter(WikiWriter):
 
     DELTA = 2
+    TMP_FILE = "RANDOM_SECRET_29303920.csv"
 
     def addClaimsFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None):
         """
@@ -32,7 +35,7 @@ class BulkWriter(WikiWriter):
 
         try:
             with open(fileSource, "r") as f:
-                reader = csv.reader(f)
+                reader = csv.reader(f, delimiter=delimiter)
 
                 if header:  # header set
                     next(reader)
@@ -41,6 +44,66 @@ class BulkWriter(WikiWriter):
                 fields = ["id", "entity_id", "property_id", "value_id"]
                 csvData = []
                 for i in reader:
+                    dt = {"entity_id": i[0],
+                          "property_id": i[1], "value_id": i[2]}
+                    x = self.addClaim(i[0], i[1], i[2])
+
+                    dt["id"] = ""
+                    if "claim" in x and "id" in x["claim"]:
+                        dt["id"] = x["claim"]["id"]
+
+                    resp.append(x)
+                    csvData.append(dt)
+
+                if outputFile:
+                    if outputFile.endswith(".json"):
+                        WikiWriter.dumpResult(resp, outputFile)
+
+                    elif outputFile.endswith(".csv"):
+                        WikiWriter.dumpCSV(outputFile, fields, csvData)
+                    else:
+                        print("Invalid output file specified. Specify JSON/CSV")
+                return resp
+
+        except Exception as e:
+            print("Error", e)
+            return e
+
+    # from names
+    def addClaimsFromNamesCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None):
+        """
+        Create a new claim on a Wikidata entity.\n
+        *Claims of type entity_name, property_id, value_name*
+
+        :param fileSource: str, the path  of the CSV file having data as entity_name, property_id, value_name
+        :param header:  boolean specifying if csv file has header or not
+        :param delimiter:  source csv file separator
+        :param outputFile:  CSV file to store result
+        """
+
+        if not self.csrf_token:
+            print("You have no CSRF token, kindly login and then call getCSRFToken()")
+            return
+
+        try:
+
+            x = WikiReader.reverseLookup(
+                "this is a labelef2no225N88EW3noe", isTest=True, limit=3)
+            pprint(x)
+            return
+            # change to suitable format file with
+            with open(fileSource, "r") as f:
+                reader = csv.reader(f, delimiter=delimiter)
+
+                if header:  # header set
+                    next(reader)
+
+                resp = []
+                fields = ["entity_id", "property_id", "value_id"]
+                csvData = []
+                for i in reader:
+                    '''TODO'''
+                    eids = WikiReader.getEntitiesRelatedToGiven(i[0])
                     dt = {"entity_id": i[0],
                           "property_id": i[1], "value_id": i[2]}
                     x = self.addClaim(i[0], i[1], i[2])
@@ -233,6 +296,10 @@ def bulk_edit_entities(w: BulkWriter):
     # w.dumpResult(res, f2)
 
 
+def test_named_csv_claims(w: BulkWriter):
+    w.addClaimsFromNamesCSV("demo/1_myfile.csv")
+
+
 if __name__ == "__main__":
 
     # bulk add claim test
@@ -241,10 +308,14 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    bulk_add_claim_test(w)
+    # bulk_add_claim_te
+    # st(w)
 
     # bulk_create_entities(w)
 
     # bulk_edit_entities(w)
+
+    # named csv test
+    test_named_csv_claims(w)
 
     w.logout()

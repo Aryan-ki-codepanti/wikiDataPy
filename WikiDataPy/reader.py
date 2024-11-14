@@ -34,7 +34,7 @@ class WikiReader(WikiBase):
     # functionalities
 
     @staticmethod
-    def searchEntities(query, fields: list[str] = ["id", "description"], n: int = None, lang: str = "en", reslang: str = "en", outputFile: str = "1_searchResults.csv", propertyFind=False):
+    def searchEntities(query, fields: list[str] = ["id", "description"], n: int = None, lang: str = "en", reslang: str = "en", outputFile: str = "1_searchResults.csv", propertyFind=False, isTest=False):
         """
         given a query searches knowledgebase for the relevant items
 
@@ -64,7 +64,12 @@ class WikiReader(WikiBase):
 
         if n:
             params["limit"] = n
-        res = requests.get(WikiReader.API_ENDPOINT_PROD, params=params).json()
+
+        api = WikiReader.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiReader.API_ENDPOINT
+
+        res = requests.get(api, params=params).json()
         res = [] if "search" not in res else res["search"]
         # pprint(res)
 
@@ -231,9 +236,9 @@ class WikiReader(WikiBase):
         return list(ans)
 
     @staticmethod
-    def reverseLookup(label, lang='en', limit=None, propertyFind=False):
+    def reverseLookup(label, lang='en', limit=None, propertyFind=False, isTest=False):
         x = WikiReader.searchEntities(
-            label, ['id', 'label', 'aliases', 'description'], lang=lang, outputFile=None, propertyFind=propertyFind)
+            label, ['id', 'label', 'aliases', 'description'], lang=lang, outputFile=None, propertyFind=propertyFind, isTest=isTest)
         if limit:
             return x[:limit]
         return x
