@@ -5,8 +5,29 @@ from datetime import datetime
 import os
 import sys
 import time
-import pprint
+from pprint import pprint
 import re
+from urllib.parse import quote
+
+
+# humans
+h2 = """
+SELECT ?human WHERE {
+  ?human wdt:P31 wd:Q5.
+}
+LIMIT 10
+
+"""
+
+h3 = """
+SELECT ?item ?itemLabel
+WHERE 
+{
+?item wdt:P31 wd:Q146.  # Find entities that are instances of "cat" (Q146)
+SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+}
+LIMIT 10
+"""
 
 
 class WikiSparql(WikiBase):
@@ -59,10 +80,10 @@ class WikiSparql(WikiBase):
             'Accept': 'application/sparql-results+json'
         }
 
-        sys.stdout.flush()
+        # sys.stdout.flush()
         response = requests.get(WikiSparql.API_ENDPOINT, headers=headers,
                                 params={'query': query})
-        sys.stdout.flush()
+        # sys.stdout.flush()
 
         if response.status_code == 200:
             res = response.json()
@@ -87,7 +108,7 @@ class WikiSparql(WikiBase):
     @staticmethod
     def execute_many(fileSource: str, delimiter: str = "---", output_format: str = "json", output: str = "single", output_dir: str = "sparql_test", lang: list[str] = ["en"]):
         """
-        Executes and return responses of SPARQL queries and saves them to file(s) 
+        Executes and return responses of SPARQL queries and saves them to file(s)
 
         response files will have format 'SparQL_Result_[time_stamp].json'
 
@@ -172,14 +193,65 @@ class WikiSparql(WikiBase):
             print("Error while executing many")
             return e
 
+    # canned queries
+    @staticmethod
+    def find_entities_by_property(pname: str, ename: str, limit: int = 10, outputFile=None):
+        """
+        Fetches entities based on a specified property and entity type.
+
+        :param property_id (str): The property name (e.g., instance of "P31").
+        :param entity_id (str): The entity name  (e.g., human "Q5").
+        :param limit (int): Maximum number of results to return.
+        """
+        eid = WikiReader.getEntitiesRelatedToGiven(ename)
+        WikiBase.clear()
+        pid = WikiReader.getEntitiesRelatedToGiven(pname, propertyFind=True)
+        WikiBase.clear()
+
+        if not eid or not pid:
+            print("Unable to get understand names")
+        eid = eid["id"]
+        pid = pid["id"]
+
+        query = """
+        SELECT ?item ?itemLabel
+        WHERE 
+        {{
+        ?item wdt:{x} wd:{y}.  # Find entities that are instances of "cat" (Q146)
+        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }}
+        }}
+        LIMIT {z}
+
+        """.format(x=pid, y=eid, z=limit)
+        x = WikiSparql.execute(query)
+        if x:
+            if not outputFile or type(outputFile) != str:
+                print("HERE")
+                return x
+
+            isCSV = outputFile.lower().endswith(".csv")
+            isJSON = outputFile.lower().endswith(".json")
+
+            csvForm = WikiBase.convertToCSVForm(x)
+            dt = csvForm if csvForm["success"] else x
+            if isJSON:
+                WikiBase.dumpResult(dt, outputFile)
+                print(f"Writter to {outputFile}")
+            elif isCSV:
+                WikiBase.dumpCSV(outputFile, csvForm["head"], csvForm["data"])
+                print(f"Writter to {outputFile}")
+            return x
+
 
 # all cats
 sparql_query = """
 SELECT ?item ?itemLabel
-WHERE 
+WHERE
 {
-?item wdt:P31 wd:Q146.  # Find entities that are instances of "cat" (Q146)
-SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+
+
+?item wdt: P31 wd: Q146.  # Find entities that are instances of "cat" (Q146)
+SERVICE wikibase: label {bd: serviceParam wikibase: language "[AUTO_LANGUAGE],en".}
 }
 LIMIT 10
 """
@@ -187,19 +259,18 @@ LIMIT 10
 # humans
 humans = """
 SELECT ?human WHERE {
-?human wdt:P31 wd:Q5.  # P31: instance of, Q5: human
+?human wdt: P31 wd: Q5.  # P31: instance of, Q5: human
 }
 LIMIT 10
-
 """
 
 
-def test_execute(fname):
+def test_execute():
 
-    res = WikiSparql.execute(humans)
+    res = WikiSparql.execute(h2)
     # WikiSparql.parseResultToIds(res)
     print("Execute DONE")
-    WikiSparql.dumpResult(res, fname)
+    pprint(res)
 
 
 def test_execute_many():
@@ -215,15 +286,24 @@ def test_execute_many():
     print("Execute Many DONE")
 
 
+def test_find_entities_by_property():
+    # WikiSparql.find_entities_by_property(
+    #     "type", "dog", outputFile="demo/8_cannedQuery_1.csv")
+    WikiSparql.find_entities_by_property(
+        "type", "dog", outputFile="demo/8_cannedQuery_1.csv", limit=20)
+
+
 if __name__ == "__main__":
 
     print(datetime.now())
     # test execute
-    # test_execute("sparql_test/test3_IDS.json")
+    # test_execute()
 
     # test execute many
-    test_execute_many()
+    # test_execute_many()
 
+    # test_find_entities_by_property
+    test_find_entities_by_property()
 
 # searchin  uggestions 75%
 # most relevant bulk writw by name

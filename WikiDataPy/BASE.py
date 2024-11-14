@@ -1,11 +1,25 @@
 import json
 import csv
+import os
 
 
 class WikiBase:
 
     API_ENDPOINT = "https://www.wikidata.org/w/api.php"
     TEST = "test.json"
+
+    @staticmethod
+    def clear():
+        """
+            Clear terminal / console
+        """
+        # for windows
+        if os.name == 'nt':
+            _ = os.system('cls')
+
+        # for mac and linux(here, os.name is 'posix')
+        else:
+            _ = os.system('clear')
 
     @staticmethod
     def dumpResult(data: object, fname=None):

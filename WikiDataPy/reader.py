@@ -2,6 +2,8 @@
 import requests
 import pprint
 from BASE import WikiBase
+from tabulate import tabulate
+from pprint import pprint
 # from sparql import WikiSparql
 
 
@@ -32,7 +34,7 @@ class WikiReader(WikiBase):
     # functionalities
 
     @staticmethod
-    def searchEntities(query, fields: list[str] = ["id", "description"], n: int = None, lang: str = "en", reslang: str = "en", outputFile: str = "1_searchResults.csv"):
+    def searchEntities(query, fields: list[str] = ["id", "description"], n: int = None, lang: str = "en", reslang: str = "en", outputFile: str = "1_searchResults.csv", propertyFind=False):
         """
         given a query searches knowledgebase for the relevant items
 
@@ -56,11 +58,15 @@ class WikiReader(WikiBase):
             "uselang": reslang
         }
 
+        if propertyFind:
+            params["type"] = "property"
+            print("Added PROP")
+
         if n:
             params["limit"] = n
         res = requests.get(WikiReader.API_ENDPOINT_PROD, params=params).json()
         res = [] if "search" not in res else res["search"]
-        # pprint.pprint(res)
+        # pprint(res)
 
         ans = []
         for i in res:
@@ -225,10 +231,44 @@ class WikiReader(WikiBase):
         return list(ans)
 
     @staticmethod
-    def reverseLookup(label, lang='en'):
+    def reverseLookup(label, lang='en', limit=None, propertyFind=False):
         x = WikiReader.searchEntities(
-            label, ['id', 'label', 'aliases', 'description'], lang=lang, outputFile=None)
+            label, ['id', 'label', 'aliases', 'description'], lang=lang, outputFile=None, propertyFind=propertyFind)
+        if limit:
+            return x[:limit]
         return x
+
+    @staticmethod
+    def getEntitiesRelatedToGiven(name: str, lang='en', propertyFind=False):
+        e1 = WikiReader.reverseLookup(
+            name, lang=lang, propertyFind=propertyFind)
+
+        if not e1:
+            return
+        i = j = 1
+        data = {}
+
+        keys = e1[0].keys()
+
+        for key in keys:
+            mp = []
+            for x in e1:
+                if key == "aliases":
+                    if "aliases" in x:
+                        mp.append(", ".join(x["aliases"]))
+                    else:
+                        mp.append("")
+                else:
+                    mp.append(x.get(key, ""))
+
+            data[key] = mp
+
+        print(tabulate(data, headers="keys", tablefmt="grid", showindex=True))
+        idx = eval(input(f"Enter index of item you want meant by\n'{
+                   name}'\n(Default would be 0) "))
+        if not idx or type(idx) != int or idx < 0 or idx >= len(e1):
+            idx = 0
+        return e1[idx]
 
 
 def searchEntityTest():
@@ -263,7 +303,14 @@ def getClaimTest():
 def reverseLookupTest():
     lbl = 'chocolate'
     res = WikiReader.reverseLookup(lbl)
-    WikiReader.dumpResult(res, "chocolate.json")
+    pprint(res)
+    # WikiReader.dumpResult(res, "chocolate.json")
+
+
+def test_get_related():
+    q = input("Query : ")
+    res = WikiReader.getEntitiesRelatedToGiven(q, propertyFind=True)
+    pprint(res)
 
 
 if __name__ == "__main__":
@@ -278,7 +325,10 @@ if __name__ == "__main__":
     # getClaimTest()
 
     # reverseLookup test
-    reverseLookupTest()
+    # reverseLookupTest()
+
+    # test  get related
+    test_get_related()
 
 
 x = [{'aliases': ['chocolate'],
