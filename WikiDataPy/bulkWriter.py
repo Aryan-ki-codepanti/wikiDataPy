@@ -8,8 +8,8 @@ import json
 import csv
 from reader import WikiReader
 from pprint import pprint
-
 from time import sleep
+from BASE import WikiBase
 load_dotenv()
 
 
@@ -79,6 +79,9 @@ class BulkWriter(WikiWriter):
         :param header:  boolean specifying if csv file has header or not
         :param delimiter:  source csv file separator
         :param outputFile:  CSV file to store result
+
+
+        "this is a labelef2no225N88EW3noe"
         """
 
         if not self.csrf_token:
@@ -87,10 +90,6 @@ class BulkWriter(WikiWriter):
 
         try:
 
-            x = WikiReader.reverseLookup(
-                "this is a labelef2no225N88EW3noe", isTest=True, limit=3)
-            pprint(x)
-            return
             # change to suitable format file with
             with open(fileSource, "r") as f:
                 reader = csv.reader(f, delimiter=delimiter)
@@ -102,31 +101,32 @@ class BulkWriter(WikiWriter):
                 fields = ["entity_id", "property_id", "value_id"]
                 csvData = []
                 for i in reader:
-                    '''TODO'''
-                    eids = WikiReader.getEntitiesRelatedToGiven(i[0])
-                    dt = {"entity_id": i[0],
-                          "property_id": i[1], "value_id": i[2]}
-                    x = self.addClaim(i[0], i[1], i[2])
+                    eids = WikiReader.reverseLookup(
+                        i[0], isTest=True, limit=3)
 
-                    dt["id"] = ""
-                    if "claim" in x and "id" in x["claim"]:
-                        dt["id"] = x["claim"]["id"]
+                    vids = WikiReader.reverseLookup(i[2], isTest=True, limit=3)
+                    curr = []
+                    for e in eids:
+                        for v in vids:
+                            dt = {"entity_id": e["id"],
+                                  "property_id": i[1], "value_id": v["id"]}
+                            # avoid duplicate combos at row level (omit curr and use CSV DATA for global)
+                            if dt not in curr:
+                                curr.append(dt)
+                    csvData.extend(curr)
 
-                    resp.append(x)
-                    csvData.append(dt)
+                # create temp file to hold data
+                WikiBase.dumpCSV(BulkWriter.TMP_FILE, fields, csvData)
 
-                if outputFile:
-                    if outputFile.endswith(".json"):
-                        WikiWriter.dumpResult(resp, outputFile)
+                res = self.addClaimsFromCSV(
+                    BulkWriter.TMP_FILE, outputFile=outputFile)
 
-                    elif outputFile.endswith(".csv"):
-                        WikiWriter.dumpCSV(outputFile, fields, csvData)
-                    else:
-                        print("Invalid output file specified. Specify JSON/CSV")
-                return resp
+                # remove temp data
+                os.remove(BulkWriter.TMP_FILE)
+                return res
 
         except Exception as e:
-            print("Error", e)
+            print("Error in addClaimsFromNamesCSV()", e)
             return e
 
     def createEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter: str = ",", outputFile: str = "created.csv"):
@@ -148,6 +148,9 @@ class BulkWriter(WikiWriter):
         this creates one entity per row with a  labels descriptions specified
         for multiple labels/descriptions in more than one language , create 1 entity then use 'editEntitiesFromCSV' 
         from entities' ids
+
+
+
         """
 
         if not self.csrf_token:
@@ -270,7 +273,7 @@ def bulk_add_claim_test(w: BulkWriter):
     f1 = "demo/4_Addclaims.csv"
     f2 = "demo/4_AddClaims_result.csv"
     res = w.addClaimsFromCSV(f1, outputFile=f2)
-    print("Bulk done")
+    print("Bulk add claim done")
 
 
 def bulk_create_entities(w: BulkWriter):
@@ -297,7 +300,11 @@ def bulk_edit_entities(w: BulkWriter):
 
 
 def test_named_csv_claims(w: BulkWriter):
-    w.addClaimsFromNamesCSV("demo/1_myfile.csv")
+    f1 = "demo/9_AddNamedClaims.csv"
+    f2 = "demo/9_AddNamedClaims_RESULT.csv"
+
+    w.addClaimsFromNamesCSV(f1, outputFile=f2)
+    print("Bulk add NAMED claim done")
 
 
 if __name__ == "__main__":
@@ -308,8 +315,7 @@ if __name__ == "__main__":
     w.login()
     w.getCSRFTtoken()
 
-    # bulk_add_claim_te
-    # st(w)
+    # bulk_add_claim_test(w)
 
     # bulk_create_entities(w)
 
