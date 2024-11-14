@@ -81,14 +81,18 @@ class WikiGraph:
 
         ids = list(ids)
 
-        x = WikiReader.getEntitiesByIds(
-            ids, options={"languages": ['en'], "props": ["labels"]}, isTest=False)
-        # pprint(x)
-        for k, v in x.items():
+        batch = 30
+        batched_result = [ids[i:i + batch]
+                          for i in range(0, len(ids), batch)]
 
-            self.names[k] = k
-            if 'labels' in v and 'en' in v['labels']:
-                self.names[k] = v['labels']['en']['value']
+        for batchIDs in batched_result:
+            x = WikiReader.getEntitiesByIds(
+                batchIDs, options={"languages": ['en'], "props": ["labels"]}, isTest=False)
+            for k, v in x.items():
+
+                self.names[k] = k
+                if 'labels' in v and 'en' in v['labels']:
+                    self.names[k] = v['labels']['en']['value']
 
     def plotNamedGraph(self, outputFile=None):
         self.fetchNames()
