@@ -3,13 +3,22 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from reader import WikiReader
 from pprint import pprint
+from BASE import WikiBase
 
 from matplotlib import pyplot as plt
 
 
 class WikiGraph:
 
-    def __init__(self, src_id):
+    def __init__(self, src_id=None, src_name=None):
+        if not (src_id or src_name):
+            src_id = "Q42"
+
+        if src_name:
+            src_id = WikiReader.getEntitiesRelatedToGiven(src_name)["id"]
+            WikiBase.clear()
+
+        self.src_name = src_name
         self.src_id = src_id
         self.edges = set()
         self.nodes = set()
