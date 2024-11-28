@@ -236,10 +236,10 @@ class WikiSparql(WikiBase):
             dt = csvForm if csvForm["success"] else x
             if isJSON:
                 WikiBase.dumpResult(dt, outputFile)
-                print(f"Writter to {outputFile}")
+                print(f"Written to {outputFile}")
             elif isCSV:
                 WikiBase.dumpCSV(outputFile, csvForm["head"], csvForm["data"])
-                print(f"Writter to {outputFile}")
+                print(f"Written to {outputFile}")
             return x
 
 
