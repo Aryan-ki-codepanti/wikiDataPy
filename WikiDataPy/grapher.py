@@ -11,6 +11,15 @@ from matplotlib import pyplot as plt
 class WikiGraph:
 
     def __init__(self, src_id=None, src_name=None):
+        """
+        Initialises WikiGraph object 
+        from either its name OR id
+
+        specifying src_name (name) will require to choose among matching entities in future
+
+        :param src_id: QID of entity whose knowledge graph has to be visualised
+        :param src_name: QID of entity whose knowledge graph has to be visualised
+        """
         if not (src_id or src_name):
             src_id = "Q42"
 
@@ -26,6 +35,15 @@ class WikiGraph:
         self.r = self.out_degree = 0
 
     def buildGraph(self, current=None, r=3, out_degree=3):
+        """
+        Builds graph from 2 parameters
+
+        r and out_degree
+        both control density of graph
+
+        :param r: radius / depth of the graph from source node (diameter/2)
+        :param out_degree: maximum outdegreeof a node 
+        """
         if not r:
             return
         if not current:
@@ -45,7 +63,13 @@ class WikiGraph:
             self.buildGraph(current=y, r=r-1, out_degree=out_degree)
 
     def plotGraph(self, outputFile=None):
+        """
+        PLOTS the graph 
+        after call to buildGraph has been made
 
+        :param outputFile: if specified saves the plotted image to this file
+
+        """
         G = nx.DiGraph()
 
         for start, label, end in self.edges:
@@ -82,6 +106,10 @@ class WikiGraph:
             plt.show()
 
     def fetchNames(self):
+        """
+            Fetches names of entities by QIDs
+            to display on graph
+        """
         ids = set()
         for x, y, z in self.edges:
             ids.add(x)
@@ -104,6 +132,14 @@ class WikiGraph:
                     self.names[k] = v['labels']['en']['value']
 
     def plotNamedGraph(self, outputFile=None):
+        """
+        Similar to plot graph 
+        but PLOTS the graph 
+        after call to buildGraph has been made
+
+        :param outputFile: if specified saves the plotted image to this file
+
+        """
         self.fetchNames()
         G = nx.DiGraph()
 

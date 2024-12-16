@@ -29,14 +29,17 @@ class WikiWriter(WikiBase):
 
     # auth
 
-    def login(self):
+    def login(self, isTest=False):
+        """
+        Logins user from username and password
+        for further operations 
+
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
         """
 
-        """
-
-        # api = WikiWriter.API_ENDPOINT_PROD
-        # if isTest:
-        #     api = WikiReader.API_ENDPOINT
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
 
         params = {
             "action": "query",
@@ -45,7 +48,7 @@ class WikiWriter(WikiBase):
             "format": "json"
         }
         response = self.session.get(
-            WikiWriter.API_ENDPOINT, params=params).json()
+            api, params=params).json()
         login_token = response['query']['tokens']['logintoken']
 
         login_params = {
@@ -65,8 +68,16 @@ class WikiWriter(WikiBase):
         else:
             print("Login failed:", login_response)
 
-    def getCSRFTtoken(self):
-        ''' Get CSRF token '''
+    def getCSRFTtoken(self, isTest: bool = False):
+        """
+        Fetches CSRF Token (required for further operations)
+
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+        """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
 
         params = {
             "action": "query",
@@ -75,19 +86,25 @@ class WikiWriter(WikiBase):
         }
 
         response = self.session.get(
-            WikiWriter.API_ENDPOINT, params=params).json()
+            api, params=params).json()
 
         self.csrf_token = response['query']['tokens']['csrftoken']
 
-    def logout(self):
+    def logout(self, isTest: bool = False):
         """
-                To logout from current session
+        To logout from current session
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         params = {
             "action": "logout",
             "format": "json"
         }
-        response = self.session.post(WikiWriter.API_ENDPOINT, data=params)
+        response = self.session.post(api, data=params)
 
         if response.status_code == 200:
             print("Successfully logged out.")
@@ -96,14 +113,20 @@ class WikiWriter(WikiBase):
 
     # functionalities
 
-    def addClaim(self, entity_id: str, property_id: str, value_id: str):
+    def addClaim(self, entity_id: str, property_id: str, value_id: str, isTest: bool = False):
         """
         Create a new claim on a Wikidata entity.
 
         :param entity_id: str, the ID of the entity (e.g., "Q42")
         :param property_id: str, the property ID (e.g., "P31")
         :param value_id: str, the ID of the value (e.g., "Q5")
+
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
 
         if not self.csrf_token:
             print("You have no CSRF token, kindly login and then call getCSRFToken()")
@@ -123,8 +146,7 @@ class WikiWriter(WikiBase):
         }
 
         # Send POST request to create the claim
-        response = self.session.post(
-            WikiWriter.API_ENDPOINT, data=params).json()
+        response = self.session.post(api, data=params).json()
 
         # Handle errors
         if "error" in response:
@@ -134,12 +156,18 @@ class WikiWriter(WikiBase):
         print("Claim created successfully:", response)
         return response
 
-    def removeClaims(self, claim_guids: list[str]):
+    def removeClaims(self, claim_guids: list[str], isTest: bool = False):
         """
         Removes  claims by their guids.
 
         :param claim_guids: list[str], the list  of the guids size not more than 50
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
 
         if not self.csrf_token:
             print("You have no CSRF token, kindly login and then call getCSRFToken()")
@@ -157,8 +185,7 @@ class WikiWriter(WikiBase):
         }
 
         # Send POST request to create the claim
-        response = self.session.post(
-            WikiWriter.API_ENDPOINT, data=params).json()
+        response = self.session.post(api, data=params).json()
 
         # Handle errors
         if "error" in response:
@@ -168,12 +195,13 @@ class WikiWriter(WikiBase):
         print("Claims removed successfully:", response)
         return response
 
-    def createOrEditEntity(self, labels: dict, descriptions: dict, aliases: dict = None, entity_id: str = None):
+    def createOrEditEntity(self, labels: dict, descriptions: dict, aliases: dict = None, entity_id: str = None, isTest=False):
         '''
                 options
                 - labels
                 - descriptions
                 - aliases
+                - isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
                 sample
                 labels = {
@@ -194,6 +222,11 @@ class WikiWriter(WikiBase):
                 - provide id if you want to edit say Q150
 
         '''
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         if not self.csrf_token:
             print("You have no csrf token, kindly login and then call getCSRFToken()")
             return
@@ -233,8 +266,7 @@ class WikiWriter(WikiBase):
 
         params["data"] = json.dumps(data)
         # sending post the request
-        response = self.session.post(
-            WikiWriter.API_ENDPOINT, data=params).json()
+        response = self.session.post(api, data=params).json()
 
         if "error" in response:
             print("Error in creating or editing entity:", response["error"])
@@ -243,14 +275,21 @@ class WikiWriter(WikiBase):
 
         return response
 
-    def delete_entity(self, entity_id: str):
+    def delete_entity(self, entity_id: str, isTest: bool = False):
         """
-            *will work only your account has moderator status*\n
-            Delete an entity on Wikidata by its ID.
+        *will work only your account has moderator status*\n
+        Delete an entity on Wikidata by its ID.
 
-            :param entity_id: str, the ID of the entity (e.g., "Q42")
-            :return:  Response from the API, or error message if deletion fails.
+        :param entity_id: str, the ID of the entity (e.g., "Q42")
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+
+        :return:  Response from the API, or error message if deletion fails.
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         params = {
             "action": "delete",
             "format": "json",
@@ -258,7 +297,7 @@ class WikiWriter(WikiBase):
             "token": self.csrf_token
         }
 
-        response = self.session.post(self.API_ENDPOINT, data=params).json()
+        response = self.session.post(api, data=params).json()
 
         if "error" in response:
             print("Error in deleting entity:", response["error"])
@@ -267,7 +306,7 @@ class WikiWriter(WikiBase):
         print("Entity deleted successfully:", entity_id)
         return response
 
-    def setLabel(self, entity_id: str, language_code: str, label: str):
+    def setLabel(self, entity_id: str, language_code: str, label: str, isTest: bool = False):
         """
         Create a new label or update existing label of entity (entity_id) having language_code
         with value label
@@ -275,6 +314,7 @@ class WikiWriter(WikiBase):
         :param entity_id: str, the ID of the entity (e.g., "Q42")
         :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english)
         :param label: str, the value of the label (e.g., "This is  a label")
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
         example:
             ent = "Q130532046"
@@ -284,6 +324,11 @@ class WikiWriter(WikiBase):
             data = w.setLabel(ent, lang, val)
 
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         if not self.csrf_token:
             print("You have no csrf token, kindly login and then call getCSRFToken()")
             return
@@ -297,7 +342,7 @@ class WikiWriter(WikiBase):
             "value": label
         }
 
-        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+        resp = self.session.post(api, data=params).json()
 
         if "error" in resp:
             print("Error while setting label")
@@ -306,7 +351,7 @@ class WikiWriter(WikiBase):
         print("Label added successfully")
         return resp
 
-    def setDescription(self, entity_id: str, language_code: str, description: str):
+    def setDescription(self, entity_id: str, language_code: str, description: str, isTest: bool = False):
         """
         Create a new description or update existing description of entity (entity_id) having language_code
         with value description
@@ -314,6 +359,7 @@ class WikiWriter(WikiBase):
         :param entity_id: str, the ID of the entity (e.g., "Q42")
         :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english)
         :param description: str, the value of the description (e.g., "This is  a description")
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
         example:
             ent = "Q130532046"
@@ -323,6 +369,11 @@ class WikiWriter(WikiBase):
             data = w.setdescription(ent, lang, val)
 
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         if not self.csrf_token:
             print("You have no csrf token, kindly login and then call getCSRFToken()")
             return
@@ -336,7 +387,7 @@ class WikiWriter(WikiBase):
             "value": description
         }
 
-        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+        resp = self.session.post(api, data=params).json()
 
         if "error" in resp:
             print("Error while setting Description")
@@ -345,13 +396,14 @@ class WikiWriter(WikiBase):
         print("Description added successfully")
         return resp
 
-    def setAliases(self, entity_id: str, aliases: list[str], language_code: str = "en"):
+    def setAliases(self, entity_id: str, aliases: list[str], language_code: str = "en", isTest: bool = False):
         """
         Sets  aliase(s) of entity (entity_id) having language_code
 
         :param entity_id: str, the ID of the entity (e.g., "Q42")
         :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english) default english
         :param aliases: str or list[str], the alias of list of aliases of the entity (e.g., "MyEntity" or ["E1","E2"])
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
         example:
             ent = "Q130532046"
@@ -361,6 +413,11 @@ class WikiWriter(WikiBase):
             data = w.setAliases(ent, val,lang)
 
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         if not self.csrf_token:
             print("You have no csrf token, kindly login and then call getCSRFToken()")
             return
@@ -376,7 +433,7 @@ class WikiWriter(WikiBase):
             "set": aliases
         }
 
-        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+        resp = self.session.post(api, data=params).json()
 
         if "error" in resp:
             print("Error while setting Aliases")
@@ -385,7 +442,7 @@ class WikiWriter(WikiBase):
         print("Aliases added successfully")
         return resp
 
-    def addRemoveAliases(self, entity_id: str, add:  list[str] = "", remove: list[str] = "", language_code: str = "en"):
+    def addRemoveAliases(self, entity_id: str, add:  list[str] = "", remove: list[str] = "", language_code: str = "en", isTest: bool = False):
         """
         Sets  aliase(s) of entity (entity_id) having language_code
 
@@ -393,6 +450,7 @@ class WikiWriter(WikiBase):
         :param add: str or list[str], the alias of list of aliases of the entity to be added (e.g., "MyEntity" or ["E1","E2"])
         :param remove: str or list[str], the alias of list of aliases of the entity to be removed (e.g., "MyEntity" or ["E1","E2"])
         :param language_code: str, languagecode  (e.g., "hi" for hindi , "en" for english) default english
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
         example:
             ent = "Q130532046"
@@ -403,6 +461,11 @@ class WikiWriter(WikiBase):
             data = w.addRemoveAliases(ent, val,lang)
 
         """
+
+        api = WikiWriter.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiWriter.API_ENDPOINT
+
         if not self.csrf_token:
             print("You have no csrf token, kindly login and then call getCSRFToken()")
             return
@@ -422,7 +485,7 @@ class WikiWriter(WikiBase):
         if remove:
             params["remove"] = remove
 
-        resp = self.session.post(WikiWriter.API_ENDPOINT, data=params).json()
+        resp = self.session.post(api, data=params).json()
 
         if "error" in resp:
             print("Error while changing Aliases")

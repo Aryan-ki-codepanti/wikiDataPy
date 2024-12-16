@@ -37,6 +37,9 @@ class WikiSparql(WikiBase):
     # helper
     @staticmethod
     def parseResultToIds(res: dict):
+        """
+            Parses results to ids
+        """
         if "results" not in res:
             return ""
 
@@ -202,6 +205,7 @@ class WikiSparql(WikiBase):
         :param property_id (str): The property name (e.g., instance of "P31").
         :param entity_id (str): The entity name  (e.g., human "Q5").
         :param limit (int): Maximum number of results to return.
+        :param outputFile: if provided saved results to this file
         """
         eid = WikiReader.getEntitiesRelatedToGiven(ename)
         WikiBase.clear()
