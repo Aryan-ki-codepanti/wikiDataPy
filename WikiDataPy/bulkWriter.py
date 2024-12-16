@@ -1,13 +1,9 @@
 
-
-import requests
 import os
 from dotenv import load_dotenv
 from writer import WikiWriter
-import json
 import csv
 from reader import WikiReader
-from pprint import pprint
 from time import sleep
 from BASE import WikiBase
 load_dotenv()
@@ -18,7 +14,7 @@ class BulkWriter(WikiWriter):
     DELTA = 2
     TMP_FILE = "RANDOM_SECRET_29303920.csv"
 
-    def addClaimsFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None):
+    def addClaimsFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None, isTest: bool = False):
         """
         Create a new claim on a Wikidata entity.\n
         *Claims of type entity_id, property_id, value_id*
@@ -46,7 +42,7 @@ class BulkWriter(WikiWriter):
                 for i in reader:
                     dt = {"entity_id": i[0],
                           "property_id": i[1], "value_id": i[2]}
-                    x = self.addClaim(i[0], i[1], i[2])
+                    x = self.addClaim(i[0], i[1], i[2], isTest=isTest)
 
                     dt["id"] = ""
                     if "claim" in x and "id" in x["claim"]:
@@ -70,7 +66,7 @@ class BulkWriter(WikiWriter):
             return e
 
     # from names
-    def addClaimsFromNamesCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None):
+    def addClaimsFromNamesCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile=None, isTest: bool = False):
         """
         Create a new claim on a Wikidata entity.\n
         *Claims of type entity_name, property_id, value_name*
@@ -79,6 +75,7 @@ class BulkWriter(WikiWriter):
         :param header:  boolean specifying if csv file has header or not
         :param delimiter:  source csv file separator
         :param outputFile:  CSV file to store result
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
 
         "this is a labelef2no225N88EW3noe"
@@ -119,7 +116,7 @@ class BulkWriter(WikiWriter):
                 WikiBase.dumpCSV(BulkWriter.TMP_FILE, fields, csvData)
 
                 res = self.addClaimsFromCSV(
-                    BulkWriter.TMP_FILE, outputFile=outputFile)
+                    BulkWriter.TMP_FILE, outputFile=outputFile, isTest=isTest)
 
                 # remove temp data
                 os.remove(BulkWriter.TMP_FILE)
@@ -129,7 +126,7 @@ class BulkWriter(WikiWriter):
             print("Error in addClaimsFromNamesCSV()", e)
             return e
 
-    def createEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter: str = ",", outputFile: str = "created.csv"):
+    def createEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter: str = ",", outputFile: str = "created.csv", isTest: bool = False):
         """
         Create a new  Wikidata entity per row in CSV file
 
@@ -137,6 +134,8 @@ class BulkWriter(WikiWriter):
         :param header:  boolean specifying if csv file has header or not
         :param delimiter:  source csv file separator
         :param outputFile:  store results here
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+
 
 
         CSV file format of rows (with optional header but specify if header present)
@@ -182,7 +181,8 @@ class BulkWriter(WikiWriter):
 
                     if not aliases:
                         aliases = None
-                    x = self.createOrEditEntity(lbl, desc, aliases)
+                    x = self.createOrEditEntity(
+                        lbl, desc, aliases, isTest=isTest)
                     curr = list(i)
                     if not x or "error" in x:
                         curr.insert(0, -1)
@@ -218,7 +218,7 @@ class BulkWriter(WikiWriter):
             print(
                 "If facing limit issues try after few time or increase BulkWriter.DELTA")
 
-    def editEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile: str = ""):
+    def editEntitiesFromCSV(self, fileSource: str, header: bool = True, delimiter=",", outputFile: str = "", isTest: bool = False):
         """
         Performs a edit on Wikidata entity per row in CSV file specified by entity_id
 
@@ -226,6 +226,7 @@ class BulkWriter(WikiWriter):
         :param header:  boolean specifying if csv file has header or not (default True)
         :param delimiter:  source csv file separator
         :param outputFile:  CSV file to store status of edits
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
 
         CSV file format of rows (with optional header but specify if header present) 
@@ -250,7 +251,7 @@ class BulkWriter(WikiWriter):
                 csvDt = []
                 for i in reader:
                     x = self.createOrEditEntity(
-                        {i[1]: i[2]}, {i[1]: i[3]}, {i[1]: i[4].split("|")}, i[0])
+                        {i[1]: i[2]}, {i[1]: i[3]}, {i[1]: i[4].split("|")}, i[0], isTest=isTest)
                     if "entity" in x and "success" in x:
                         csvDt.append(
                             {"id": x["entity"]["id"],  "success": x["success"]})
