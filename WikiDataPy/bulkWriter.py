@@ -23,7 +23,7 @@ class BulkWriter(WikiWriter):
         Create a new claim on a Wikidata entity.\n
         *Claims of type entity_id, property_id, value_id*
 
-        :param fileSource: str, the path  of the CSV file having data as entity_id, property_id,value_id
+        :param fileSource: str, the path  of the CSV file having data as *entity_id, property_id,value_id*
         :param header:  boolean specifying if csv file has header or not
         :param delimiter:  source csv file separator
         :param outputFile:  CSV file to store result

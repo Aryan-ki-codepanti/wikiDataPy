@@ -11,6 +11,7 @@ load_dotenv()
 class WikiWriter(WikiBase):
 
     API_ENDPOINT = "https://test.wikidata.org/w/api.php"
+    API_ENDPOINT_PROD = "https://www.wikidata.org/w/api.php"
 
     def __init__(self, username: str, password: str):
         """
@@ -29,6 +30,13 @@ class WikiWriter(WikiBase):
     # auth
 
     def login(self):
+        """
+
+        """
+
+        # api = WikiWriter.API_ENDPOINT_PROD
+        # if isTest:
+        #     api = WikiReader.API_ENDPOINT
 
         params = {
             "action": "query",

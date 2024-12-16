@@ -36,7 +36,7 @@ class WikiReader(WikiBase):
     @staticmethod
     def searchEntities(query, fields: list[str] = ["id", "description"], n: int = None, lang: str = "en", reslang: str = "en", outputFile: str = "1_searchResults.csv", propertyFind=False, isTest=False):
         """
-        given a query searches knowledgebase for the relevant items
+        given a query searches knowledgebase for the relevant items (by description , labels, aliases)
 
         return  field values specified by fields argument
 
@@ -46,9 +46,13 @@ class WikiReader(WikiBase):
         :param n: specifies number of results to be returned, by default all will be returned
 
         :param outputFile: store output at this file (CSV/JSON)
-
-
+        :param propertyFind: when set to true will search for properties (PIDs) instead of entities (QIDs)(default False)
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
         """
+
+        api = WikiReader.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiReader.API_ENDPOINT
 
         params = {
             "action": "wbsearchentities",
@@ -65,10 +69,6 @@ class WikiReader(WikiBase):
         if n:
             params["limit"] = n
 
-        api = WikiReader.API_ENDPOINT_PROD
-        if isTest:
-            api = WikiReader.API_ENDPOINT
-
         res = requests.get(api, params=params).json()
         res = [] if "search" not in res else res["search"]
         # pprint(res)
@@ -83,7 +83,7 @@ class WikiReader(WikiBase):
 
         # fallback to english language if no result
         if not ans:
-            return WikiReader.searchEntities(query, fields, n=n)
+            return WikiReader.searchEntities(query, fields, n=n, lang=lang, reslang=reslang, outputFile=outputFile, propertyFind=propertyFind, isTest=isTest)
 
         # try to output
 
@@ -106,23 +106,25 @@ class WikiReader(WikiBase):
         return ans
 
     @staticmethod
-    def getEntitiesByIds(id_: list[str] = ["Q42"], options: dict = {"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile: str = None, isTest: bool = True):
-        '''
-        getEntities
+    def getEntitiesByIds(id_: list[str] = ["Q42"], options: dict = {"languages": ["en"], "sitelinks": ["enwiki"], "props": ["descriptions"]}, outputFile: str = None, isTest: bool = False):
+        """
+        Fetch get entities from ids 
 
         :param id_: list of ids of entities to fetch
         :param options: set options like languages sitelinks and properties to fetch
         :param outputFile: specifies number of descriptors to be returned, by default all will be returned
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
         default options\n
             - languages : "en"
             - props : "descriptions"
             - sites : "enwiki"
 
-        '''
-        api = WikiReader.API_ENDPOINT
-        if not isTest:
-            api = WikiReader.API_ENDPOINT_PROD
+        """
+
+        api = WikiReader.API_ENDPOINT_PROD
+        if isTest:
+            api = WikiReader.API_ENDPOINT
 
         id_ = "|".join(id_)
         if "sitelinks" in options:
@@ -162,15 +164,16 @@ class WikiReader(WikiBase):
         return res
 
     @staticmethod
-    def getClaims(id_: str = "Q42", options: dict = {"rank": "normal"}, outputFile: str = "", isTest: bool = True):
+    def getClaims(id_: str = "Q42", options: dict = {"rank": "normal"}, outputFile: str = "", isTest: bool = False):
         """
         get claims of entity with ID id_
 
         :param id_: id of item whose claims need to be fetched
         :param outputFile: specifies output file (JSON/CSV)
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
 
 
-        options
+        :param options:
             - rank: normal default (One of the following values: deprecated, normal, preferred)
         """
 
@@ -223,7 +226,15 @@ class WikiReader(WikiBase):
         return res
 
     @staticmethod
-    def getRelatedEntitiesProps(id_: str, isTest=True, limit=None):
+    def getRelatedEntitiesProps(id_: str,  limit=None, isTest=False):
+        """
+        this method gets (PID,Q2_ID) pairs for entity
+        i.e. properties and value ids for an entity
+
+        :param id_: QID of entity
+        :param limit: when set , will return no more than limit no. of pairs
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+        """
         claims = WikiReader.getClaims(id_, outputFile=None, isTest=isTest)
         ans = set()
         for k, v in claims.items():
@@ -237,6 +248,17 @@ class WikiReader(WikiBase):
 
     @staticmethod
     def reverseLookup(label, lang='en', limit=None, propertyFind=False, isTest=False):
+        """
+        Lookup entities by label 
+        :param label: label/ query to lookup entities by
+        :param limit: if set returns no more than limit no. of results
+        :param lang:  language to search by (default 'en')
+
+
+        :param propertyFind: when set to true will search for properties (PIDs) instead of entities (QIDs)(default False)
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+
+        """
         x = WikiReader.searchEntities(
             label, ['id', 'label', 'aliases', 'description'], lang=lang, outputFile=None, propertyFind=propertyFind, isTest=isTest)
         if limit:
@@ -244,9 +266,17 @@ class WikiReader(WikiBase):
         return x
 
     @staticmethod
-    def getEntitiesRelatedToGiven(name: str, lang='en', propertyFind=False):
+    def getEntitiesRelatedToGiven(name: str, lang='en', propertyFind=False, isTest: bool = False):
+        """
+        tries to fetch entities similar to the one specified by name
+
+        :param name: name to find entity by
+        :param lang:  language to search by (default 'en')
+        :param propertyFind: when set to true will search for properties (PIDs) instead of entities (QIDs)(default False)
+        :param isTest: flag when set will use test.wikidata.org (for testing) instead of main site (www.wikidata.org)
+        """
         e1 = WikiReader.reverseLookup(
-            name, lang=lang, propertyFind=propertyFind)
+            name, lang=lang, propertyFind=propertyFind, isTest=isTest)
 
         if not e1:
             return
@@ -333,7 +363,7 @@ if __name__ == "__main__":
     # reverseLookupTest()
 
     # test  get related
-    test_get_related()
+    # test_get_related()
 
 
 x = [{'aliases': ['chocolate'],
