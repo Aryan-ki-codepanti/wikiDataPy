@@ -4,7 +4,6 @@ import pprint
 from BASE import WikiBase
 from tabulate import tabulate
 from pprint import pprint
-# from sparql import WikiSparql
 
 
 class WikiReader(WikiBase):
@@ -64,7 +63,6 @@ class WikiReader(WikiBase):
 
         if propertyFind:
             params["type"] = "property"
-            print("Added PROP")
 
         if n:
             params["limit"] = n
@@ -323,7 +321,7 @@ def getEntitiesTest():
 
     ids = ["Q42", "Q236478", "Q236479"]
     res = WikiReader.getEntitiesByIds(
-        ids, options, outputFile="demo/2_getEntities.csv")
+        ids, options, outputFile="demo/2_getEntities_2.csv")
     print("Done get entities")
 
 
@@ -331,7 +329,7 @@ def getClaimTest():
     id_ = "Q42"
     id_ = "Q236479"
     res = WikiReader.getClaims(
-        id_, outputFile="demo/3_getClaim.csv")
+        id_, outputFile="demo/3_getClaim_2.csv")
     print("Done claim test")
 
 
@@ -364,31 +362,3 @@ if __name__ == "__main__":
 
     # test  get related
     # test_get_related()
-
-
-x = [{'aliases': ['chocolate'],
-      'description': 'tree native to tropical South America producing cocoa beans '
-      '- the source plant of cacao and chocolate',
-      'id': 'Q42385',
-      'label': 'cacao'},
-
-     {'description': 'nutritionally dense or sweet food product from the seed of '
-      'Theobroma cacao - cocoa bean',
-      'id': 'Q195',
-      'label': 'chocolate'},
-
-     {'description': 'tone of dark brown', 'id': 'Q3309916', 'label': 'chocolate'},
-
-     {'description': '2005 film directed by Vivek Agnihotri',
-      'id': 'Q592915',
-      'label': 'Chocolate'},
-
-     {'description': '2004 song by Kylie Minogue',
-     'id': 'Q861001',
-      'label': 'Chocolate'},
-     {'description': '2008 Thai martial arts film directed by Prachya Pinkaew',
-      'id': 'Q466354',
-      'label': 'Chocolate'},
-     {'description': '5th episode of the 1st season of Masters of Horror',
-     'id': 'Q2470017',
-      'label': 'Chocolate'}]

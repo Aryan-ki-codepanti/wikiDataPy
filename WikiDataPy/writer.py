@@ -153,7 +153,7 @@ class WikiWriter(WikiBase):
             print("Error in creating claim:", response["error"])
             return response["error"]
 
-        print("Claim created successfully:", response)
+        # print("Claim created successfully:", response)
         return response
 
     def removeClaims(self, claim_guids: list[str], isTest: bool = False):
@@ -192,7 +192,7 @@ class WikiWriter(WikiBase):
             print("Error in removing claims:", response["error"])
             return response["error"]
 
-        print("Claims removed successfully:", response)
+        print("Claims removed successfully")
         return response
 
     def createOrEditEntity(self, labels: dict, descriptions: dict, aliases: dict = None, entity_id: str = None, isTest=False):
@@ -270,8 +270,8 @@ class WikiWriter(WikiBase):
 
         if "error" in response:
             print("Error in creating or editing entity:", response["error"])
-        else:
-            print(f"Entity {action} successfully:", response)
+        # else:
+        #     print(f"Entity {action} successfully")
 
         return response
 
@@ -531,17 +531,17 @@ def add_claim_test(w: WikiWriter):
     v = "Q19"
     # p = "P31"  # instance of
     # v = "Q5"  # human
-    res = w.addClaim(e, p, v)
+    res = w.addClaim(e, p, v, isTest=True)
     pprint.pprint(res)
 
 
 def remove_claim_test(w: WikiWriter):
     # create / edit claim
     guids = [
-        "Q236560$84FD8F03-ADA8-46FA-A694-D4611A1D5DB2"
+        "Q236479$9772A4B7-BE1A-4F8D-8EAA-D9C5C073A458"
     ]
 
-    res = w.removeClaims(guids)
+    res = w.removeClaims(guids, isTest=True)
 
     pprint.pprint(res)
 
@@ -550,9 +550,9 @@ def label_test(w: WikiWriter):
 
     ent = "Q236560"
     lang = "hi"  # hindi
-    val = "मैं आर्यन हूं ha2987"
+    val = "मैं आर्यन हूं ha2987NEW"
 
-    data = w.setLabel(ent, lang, val)
+    data = w.setLabel(ent, lang, val, isTest=True)
     pprint.pprint(data)
 
 
@@ -560,9 +560,9 @@ def desc_test(w: WikiWriter):
 
     ent = "Q236560"
     lang = "hi"  # hindi
-    val = "यह एक विवरण है विवरण20ohihs है विवरण है विवरण है"
+    val = "यह एक विवरण है विवरण20NEWohihs है विवरण है विवरण है"
 
-    data = w.setDescription(ent, lang, val)
+    data = w.setDescription(ent, lang, val, isTest=True)
     pprint.pprint(data)
 
 
@@ -570,9 +570,9 @@ def set_alias_test(w: WikiWriter):
 
     ent = "Q236560"
     lang = "hi"
-    val = ["उपनाम14", "उपनाम176"]
+    val = ["उपनाNEWम14", "उपनाNEWम176"]
 
-    data = w.setAliases(ent, val, lang)
+    data = w.setAliases(ent, val, lang, isTest=True)
 
     pprint.pprint(data)
 
@@ -581,10 +581,10 @@ def addRem_alias_test(w: WikiWriter):
 
     ent = "Q236479"
     lang = "en"
-    add = ["E2", "E1"]
+    add = ["E2", "E3"]
     remove = ["MyEntity_1"]
 
-    data = w.addRemoveAliases(ent, add, remove, lang)
+    data = w.addRemoveAliases(ent, add, remove, lang, isTest=True)
     pprint.pprint(data)
 
 
@@ -597,8 +597,8 @@ def delete_test(w: WikiWriter):
 if __name__ == "__main__":
     w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
 
-    w.login()
-    w.getCSRFTtoken()
+    w.login(isTest=True)
+    w.getCSRFTtoken(isTest=True)
 
     # create / edit entity test
     # write_test(w)
@@ -610,13 +610,13 @@ if __name__ == "__main__":
     # remove_claim_test(w)
 
     # 10 Label set test
-    label_test(w)
+    # label_test(w)
 
     # 11 description set test
-    desc_test(w)
+    # desc_test(w)
 
     # 12 set alias test
-    set_alias_test(w)
+    # set_alias_test(w)
 
     # 13 add remove alias test
     # addRem_alias_test(w)
@@ -624,4 +624,4 @@ if __name__ == "__main__":
     # 14 DEL
     # delete_test(w)
 
-    w.logout()
+    w.logout(isTest=True)

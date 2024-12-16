@@ -6,7 +6,6 @@ import csv
 from reader import WikiReader
 from time import sleep
 from BASE import WikiBase
-load_dotenv()
 
 
 class BulkWriter(WikiWriter):
@@ -51,6 +50,7 @@ class BulkWriter(WikiWriter):
                     resp.append(x)
                     csvData.append(dt)
 
+                print("Claims added")
                 if outputFile:
                     if outputFile.endswith(".json"):
                         WikiWriter.dumpResult(resp, outputFile)
@@ -198,7 +198,7 @@ class BulkWriter(WikiWriter):
                     sleep(BulkWriter.DELTA)
 
                 # write results to other CSV
-
+                print("Entities Created")
                 if not outputFile or type(outputFile) != str:
                     print("Invalid output file format specify JSON/CSV")
 
@@ -272,8 +272,8 @@ class BulkWriter(WikiWriter):
 
 def bulk_add_claim_test(w: BulkWriter):
     f1 = "demo/4_Addclaims.csv"
-    f2 = "demo/4_AddClaims_result.csv"
-    res = w.addClaimsFromCSV(f1, outputFile=f2)
+    f2 = "demo/4_AddClaims_result_2.csv"
+    res = w.addClaimsFromCSV(f1, outputFile=f2, isTest=True)
     print("Bulk add claim done")
 
 
@@ -284,37 +284,38 @@ def bulk_create_entities(w: BulkWriter):
     # f2 = "bulk/test_create_5Mul.json"  # lot of creations
 
     f1 = "demo/5_bulkCreateEntities.csv"
-    f2 = "demo/5_bulkCreateResult.csv"  # lot of creations
+    f2 = "demo/5_bulkCreateResult_2.csv"  # lot of creations
 
-    res = w.createEntitiesFromCSV(f1, outputFile=f2)
+    res = w.createEntitiesFromCSV(f1, outputFile=f2, isTest=True)
     print("Bulk Create done")
     # w.dumpResult(res, f2)
 
 
 def bulk_edit_entities(w: BulkWriter):
     f1 = "demo/6_editEnt.csv"
-    f2 = "demo/6_editEntResult.csv"
+    f2 = "demo/6_editEntResult_2.csv"
 
-    res = w.editEntitiesFromCSV(f1, outputFile=f2)
+    res = w.editEntitiesFromCSV(f1, outputFile=f2, isTest=True)
     print("Bulk Edit done")
     # w.dumpResult(res, f2)
 
 
 def test_named_csv_claims(w: BulkWriter):
     f1 = "demo/9_AddNamedClaims.csv"
-    f2 = "demo/9_AddNamedClaims_RESULT.csv"
+    f2 = "demo/9_AddNamedClaims_RESULT_2.csv"
 
-    w.addClaimsFromNamesCSV(f1, outputFile=f2)
+    w.addClaimsFromNamesCSV(f1, outputFile=f2, isTest=True)
     print("Bulk add NAMED claim done")
 
 
 if __name__ == "__main__":
 
     # bulk add claim test
+    load_dotenv()
 
     w = BulkWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
-    w.login()
-    w.getCSRFTtoken()
+    w.login(isTest=True)
+    w.getCSRFTtoken(isTest=True)
 
     # bulk_add_claim_test(w)
 
@@ -323,6 +324,6 @@ if __name__ == "__main__":
     # bulk_edit_entities(w)
 
     # named csv test
-    test_named_csv_claims(w)
+    # test_named_csv_claims(w)
 
     w.logout()

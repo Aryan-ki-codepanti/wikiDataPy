@@ -4,10 +4,8 @@ from reader import WikiReader
 from datetime import datetime
 import os
 import sys
-import time
 from pprint import pprint
 import re
-from urllib.parse import quote
 
 
 # humans
@@ -113,7 +111,7 @@ class WikiSparql(WikiBase):
         """
         Executes and return responses of SPARQL queries and saves them to file(s)
 
-        response files will have format 'SparQL_Result_[time_stamp].json'
+        response files will have format 'SparQL_Result_[<datetime>].json'
 
         :param fileSource: str, Path to txt file containing sparql queries to be executed
         :param delimiter: str, delimiter used to separate queries in text file by default its '---'
@@ -214,6 +212,7 @@ class WikiSparql(WikiBase):
 
         if not eid or not pid:
             print("Unable to get understand names")
+            return
         eid = eid["id"]
         pid = pid["id"]
 
@@ -230,7 +229,6 @@ class WikiSparql(WikiBase):
         x = WikiSparql.execute(query)
         if x:
             if not outputFile or type(outputFile) != str:
-                print("HERE")
                 return x
 
             isCSV = outputFile.lower().endswith(".csv")
@@ -238,7 +236,10 @@ class WikiSparql(WikiBase):
 
             csvForm = WikiBase.convertToCSVForm(x)
             dt = csvForm if csvForm["success"] else x
-            if isJSON:
+
+            if isJSON or not csvForm["success"]:
+                if ".csv" in outputFile.lower():
+                    outputFile = outputFile.lower().replace(".csv", ".json")
                 WikiBase.dumpResult(dt, outputFile)
                 print(f"Written to {outputFile}")
             elif isCSV:
