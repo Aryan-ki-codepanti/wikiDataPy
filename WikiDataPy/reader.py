@@ -1,7 +1,7 @@
 
 import requests
 import pprint
-from BASE import WikiBase
+from .BASE import WikiBase
 from tabulate import tabulate
 from pprint import pprint
 

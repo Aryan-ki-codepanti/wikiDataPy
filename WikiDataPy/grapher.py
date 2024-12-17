@@ -1,9 +1,8 @@
 
 import networkx as nx
 import matplotlib.pyplot as plt
-from reader import WikiReader
-from pprint import pprint
-from BASE import WikiBase
+from .reader import WikiReader
+from .BASE import WikiBase
 
 from matplotlib import pyplot as plt
 

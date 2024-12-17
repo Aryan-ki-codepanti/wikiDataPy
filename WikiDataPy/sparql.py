@@ -1,6 +1,6 @@
 import requests
-from BASE import WikiBase
-from reader import WikiReader
+from .BASE import WikiBase
+from .reader import WikiReader
 from datetime import datetime
 import os
 import sys

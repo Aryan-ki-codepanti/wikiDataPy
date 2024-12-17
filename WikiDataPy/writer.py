@@ -1,7 +1,7 @@
 import requests
 import os
 from dotenv import load_dotenv
-from BASE import WikiBase
+from .BASE import WikiBase
 import json
 import pprint
 

@@ -1,11 +1,11 @@
 
 import os
 from dotenv import load_dotenv
-from writer import WikiWriter
+from .writer import WikiWriter
 import csv
-from reader import WikiReader
+from .reader import WikiReader
 from time import sleep
-from BASE import WikiBase
+from .BASE import WikiBase
 
 
 class BulkWriter(WikiWriter):
