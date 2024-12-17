@@ -83,3 +83,11 @@ There are 4 modules and classes in which functionality is divided and some metho
 Contributions are welcome! Feel free to submit issues or pull requests for new features or bug fixes.
 
 ---
+
+---
+
+## Links
+
+-   **Repository**: [WikidataPy GitHub Repository](https://github.com/Aryan-ki-codepanti/wikiDataPy)
+-   **LinkedIn**: [Aryan](https://www.linkedin.com/in/aryan-sethi-54785a1a9/)
+-   **Email**: [aryan.rdps@gmail.com](mailto:your.email@example.com)

@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="WikiDataPy",
-    version="0.0.1",
-    description="enabling users to perform a variety of operations such as searching entities, retrieving claims, performing SPARQL queries, and even visualizing knowledge graphs.",
+    version="0.0.2",
+    description="WikidataPy is a Python library designed for seamless interaction with Wikidata's knowledgebase, enabling users to perform a variety of operations such as searching entities, retrieving claims, performing SPARQL queries, and even visualizing knowledge graphs.",
     author="Aryan Sethi",
     license="MIT",
     packages=find_packages(),
@@ -16,6 +16,7 @@ setup(
         "matplotlib>=3.9.2",
         "networkx>=3.4.2",
         "numpy>=2.1.3",
-        "tabulate>=0.9.0"
+        "tabulate>=0.9.0",
+        "matplotlib-inline>=0.1.7"
     ]
 )
