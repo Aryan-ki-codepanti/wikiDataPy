@@ -1,6 +1,6 @@
 # WikidataPy
 
-WikidataPy is a Python library designed for seamless interaction with Wikidata's API, enabling users to perform a variety of operations such as searching entities, retrieving claims, performing SPARQL queries, and even visualizing knowledge graphs.
+WikidataPy is a Python library designed for seamless interaction with Wikidata's knowledgebase, enabling users to perform a variety of operations such as searching entities, retrieving claims, performing SPARQL queries, and even visualizing knowledge graphs.
 
 ---
 

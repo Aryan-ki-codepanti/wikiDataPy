@@ -1,6 +1,5 @@
 
 import os
-from dotenv import load_dotenv
 from .writer import WikiWriter
 import csv
 from .reader import WikiReader
@@ -311,9 +310,8 @@ def test_named_csv_claims(w: BulkWriter):
 if __name__ == "__main__":
 
     # bulk add claim test
-    load_dotenv()
 
-    w = BulkWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
+    w = BulkWriter("WIKI_USERNAME", "WIKI_PASSWORD")
     w.login(isTest=True)
     w.getCSRFTtoken(isTest=True)
 

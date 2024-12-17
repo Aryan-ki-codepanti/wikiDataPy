@@ -1,11 +1,8 @@
 import requests
 import os
-from dotenv import load_dotenv
 from .BASE import WikiBase
 import json
 import pprint
-
-load_dotenv()
 
 
 class WikiWriter(WikiBase):
@@ -595,7 +592,7 @@ def delete_test(w: WikiWriter):
 
 
 if __name__ == "__main__":
-    w = WikiWriter(os.getenv("WIKI_USERNAME"), os.getenv("WIKI_PASSWORD"))
+    w = WikiWriter("WIKI_USERNAME", "WIKI_PASSWORD")
 
     w.login(isTest=True)
     w.getCSRFTtoken(isTest=True)
